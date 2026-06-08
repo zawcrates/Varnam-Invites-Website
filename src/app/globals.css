@@ -1,26 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+  font-family: 'White Space';
+  src: url('/white-space.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
+/* ─── Hide scrollbar (all browsers) ─────────────────────── */
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge legacy */
+}
+*::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari, Opera */
+}
+
+:root {
+
+  --background: #F8F7F4;
+  --foreground: #111111;
+  
+  /* Theme colors */
+  --gold-light: #F3EFE9;
+  --gold-medium: #8B7355;
+  --gold-dark: #6E5A42;
+  --luxury-dark: #111111;
+}
+
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-secondary: #666666;
+  
+  --color-gold-light: var(--gold-light);
+  --color-gold-medium: var(--gold-medium);
+  --color-gold-dark: var(--gold-dark);
+  --color-luxury-dark: var(--luxury-dark);
+  
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-outfit), sans-serif;
+  --font-whitespace: 'White Space', var(--font-serif);
+  --font-sansflex: 'Google Sans Flex', var(--font-sans);
+  
+  --animate-gold-shine: gold-shine 3s ease-in-out infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes gold-shine {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
 }
+
+/* Premium Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gold-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-medium);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dark);
+}
+
+/* Utility classes for luxury styling */
+.luxury-glass {
+  background: rgba(248, 247, 244, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 115, 85, 0.2);
+}
+
+.luxury-text-gradient {
+  background: linear-gradient(135deg, #6E5A42 0%, #8B7355 50%, #6E5A42 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.luxury-border {
+  border: 1px solid rgba(139, 115, 85, 0.3);
+}
+
+.luxury-shadow {
+  box-shadow: 0 10px 30px -10px rgba(110, 90, 66, 0.15);
+}
+
+/* ─── Preloader ──────────────────────────────────────────── */
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  animation: preloader-slideup 2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+@keyframes preloader-slideup {
+  0%   { opacity: 0;  transform: translateY(0); }
+  20%  { opacity: 1;  transform: translateY(0); }
+  70%  { opacity: 1;  transform: translateY(0); }
+  100% { opacity: 1;  transform: translateY(-100%); }
+}
+
+.preloader-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(18, 18, 18, 0.45) 100%);
+  z-index: 1;
+}
+
+
+
