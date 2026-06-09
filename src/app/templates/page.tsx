@@ -124,10 +124,10 @@ export default function TemplatesPage() {
                 key={template.id}
                 layout
                 whileHover={{ y: -6 }}
-                className="bg-white rounded-2xl border border-gold-medium/10 overflow-hidden luxury-shadow flex flex-col h-full group"
+                className="bg-white rounded-2xl border border-gold-medium/10 overflow-hidden luxury-shadow hover:shadow-2xl hover:shadow-gold-medium/15 transition-all duration-300 flex flex-col h-full group"
               >
                 {/* Image Showcase */}
-                <div className="relative aspect-[4/5] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
+                <div className="relative aspect-[16/9] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
                   <img 
                     src={template.thumbnail} 
                     alt={template.name}
@@ -149,7 +149,7 @@ export default function TemplatesPage() {
                   <h3 className="font-sansflex text-xl text-luxury-dark mb-2 tracking-wide font-semibold">
                     {template.name}
                   </h3>
-                  <p className="text-sm text-foreground/70 leading-relaxed font-sansflex mb-6 flex-grow">
+                  <p className="text-xs sm:text-sm text-foreground/60 leading-relaxed font-sansflex mb-4 line-clamp-2">
                     {template.description}
                   </p>
                   
@@ -175,15 +175,9 @@ export default function TemplatesPage() {
                     <div className="flex gap-2">
                       <Link
                         href={`/templates/${template.slug}`}
-                        className="text-xs uppercase tracking-wider font-semibold border border-gold-medium/40 hover:bg-gold-light text-luxury-dark px-4.5 py-2.5 rounded-full transition-colors font-sansflex"
+                        className="text-xs uppercase tracking-wider font-semibold bg-luxury-dark hover:bg-gold-dark text-white px-4.5 py-2.5 rounded-full transition-colors font-sansflex border border-gold-medium/20"
                       >
                         Preview
-                      </Link>
-                      <Link
-                        href={`/customize/${template.slug}`}
-                        className="text-xs uppercase tracking-wider font-semibold bg-luxury-dark hover:bg-gold-dark text-white px-4.5 py-2.5 rounded-full transition-colors font-sansflex"
-                      >
-                        Customize
                       </Link>
                     </div>
                   </div>

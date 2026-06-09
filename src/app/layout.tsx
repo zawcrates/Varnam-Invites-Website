@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
 import "./globals.css";
 import Preloader from "@/components/Preloader";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -28,8 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
       <body className="font-sansflex antialiased bg-background text-foreground">
-        <Preloader />
-        {children}
+        <SmoothScrollProvider>
+          <Preloader />
+          {children}
+        </SmoothScrollProvider>
       </body>
     </html>
   );

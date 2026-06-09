@@ -102,7 +102,8 @@ body {
 }
 
 .luxury-shadow {
-  box-shadow: 0 10px 30px -10px rgba(110, 90, 66, 0.15);
+  box-shadow: 0 12px 35px -12px rgba(110, 90, 66, 0.18), 0 4px 12px -5px rgba(110, 90, 66, 0.08);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ─── Preloader ──────────────────────────────────────────── */
@@ -126,6 +127,27 @@ body {
   inset: 0;
   background: radial-gradient(ellipse at center, transparent 40%, rgba(18, 18, 18, 0.45) 100%);
   z-index: 1;
+}
+
+/* ─── Lenis Smooth Scroll ────────────────────────────────── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 

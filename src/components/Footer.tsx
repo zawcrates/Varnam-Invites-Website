@@ -9,17 +9,16 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         
         {/* Brand */}
-        <div className="md:col-span-2">
-          <Link href="/" className="flex items-center gap-2 mb-4 group">
-            <span className="font-sansflex text-2xl font-bold tracking-widest text-white group-hover:text-gold-medium transition-colors">
-              VARNAM
-            </span>
-            <span className="font-sansflex text-xs uppercase tracking-[0.25em] text-gold-medium border-l border-gold-medium/40 pl-2 mt-1">
-              Invites
-            </span>
+        <div className="md:col-span-2 self-center flex flex-col items-start gap-1">
+          <Link href="/" className="relative block h-30 w-100 overflow-hidden group">
+            <img 
+              src="/Varnam_svg1.png" 
+              alt="Varnam Invites Logo" 
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-44 w-auto object-contain max-w-none transition-opacity group-hover:opacity-85" 
+            />
           </Link>
-          <p className="text-sm text-gold-light/60 max-w-sm mb-6 leading-relaxed">
-            Create stunning, modern, and interactive digital wedding invitations with a premium look. Personalize every element and share your special day with elegance.
+          <p className="font-sansflex text-xs text-gold-light/50 tracking-wide pl-4 max-w-xs leading-relaxed">
+            Crafting elegant digital invitations for your special celebrations.
           </p>
         </div>
 
@@ -37,6 +36,11 @@ export default function Footer() {
             <li>
               <Link href="/templates" className="hover:text-gold-medium transition-colors">
                 Browse Templates
+              </Link>
+            </li>
+            <li>
+              <Link href="/my-invites" className="hover:text-gold-medium transition-colors">
+                My Invites
               </Link>
             </li>
             <li>

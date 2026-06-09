@@ -8,9 +8,10 @@ import { User, Mail, Phone, Lock, CheckCircle2, ArrowRight, Eye, EyeOff } from "
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess: (user: { name: string; email: string }) => void;
 }
 
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   // Common states
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
@@ -35,9 +36,26 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Focus input when modal opens or flips
+  // Focus input when modal opens or flips, and reset on close
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
+      // Wait for exit animation to finish before resetting tab/state to avoid glitchy flip on exit
+      const timer = setTimeout(() => {
+        setIsSignup(false);
+        setSignupSuccess(false);
+        setError("");
+        setFullName("");
+        setSignupEmail("");
+        setSignupPhone("");
+        setSignupCountryCode("+91");
+        setSignupPassword("");
+        setConfirmPassword("");
+        setShowPassword(false);
+        setShowSignupPassword(false);
+        setShowConfirmPassword(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
       setError("");
       setTimeout(() => {
         if (isSignup) {
@@ -85,9 +103,31 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return;
     }
 
-    // TODO: integrate auth logic
+    // Direct login simulation
     console.log("Sign in with", trimmedCredential, password);
-    onClose();
+    
+    let userFullName = "Guest User";
+    try {
+      const simulatedUsers = JSON.parse(localStorage.getItem("simulated_users") || "{}");
+      const user = simulatedUsers[trimmedCredential.toLowerCase()];
+      if (user && user.password === password) {
+        userFullName = user.fullName;
+      } else {
+        // Fallback: extract name from email prefix or phone number
+        if (isValidEmail) {
+          const prefix = trimmedCredential.split('@')[0];
+          userFullName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+        } else {
+          userFullName = "User " + trimmedCredential.slice(-4);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    const userData = { name: userFullName, email: trimmedCredential };
+    localStorage.setItem("current_user", JSON.stringify(userData));
+    onLoginSuccess(userData);
   };
 
   const handleSignupSubmit = (e: React.FormEvent) => {
@@ -132,26 +172,30 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return;
     }
 
+    // Save user detail to simulated DB and set current session in localStorage
+    const userData = { name: fullName.trim(), email: signupEmail.trim() };
+    try {
+      const simulatedUsers = JSON.parse(localStorage.getItem("simulated_users") || "{}");
+      simulatedUsers[signupEmail.trim().toLowerCase()] = {
+        fullName: fullName.trim(),
+        phone: signupPhone.trim(),
+        password: signupPassword,
+      };
+      localStorage.setItem("simulated_users", JSON.stringify(simulatedUsers));
+      localStorage.setItem("current_user", JSON.stringify(userData));
+    } catch (e) {
+      console.error(e);
+    }
+
     // Simulate signup success
     setSignupSuccess(true);
     setTimeout(() => {
-      // Flip back to login with email pre-filled
-      setCredential(signupEmail);
-      setPassword("");
-      setIsSignup(false);
-      setSignupSuccess(false);
-      // Reset form
-      setFullName("");
-      setSignupEmail("");
-      setSignupPhone("");
-      setSignupCountryCode("+91");
-      setSignupPassword("");
-      setConfirmPassword("");
-      // Reset visibility states
-      setShowPassword(false);
-      setShowSignupPassword(false);
-      setShowConfirmPassword(false);
-    }, 2000);
+      // Trigger login success immediately
+      onLoginSuccess(userData);
+      // Note: We don't reset the signup success or isSignup state here anymore,
+      // so it doesn't try to flip the 3D card back to login form *while* the modal is fading out.
+      // These are cleaned up in the useEffect when the modal is fully closed.
+    }, 1200);
   };
 
   const toggleView = () => {
@@ -361,7 +405,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         </div>
                         <div>
                           <h3 className="font-sansflex font-bold text-lg text-luxury-dark mb-1">Registration Complete!</h3>
-                          <p className="text-xs text-[#1b7937] font-semibold uppercase tracking-wider font-sansflex">Flipping to login...</p>
+                          <p className="text-xs text-[#1b7937] font-semibold uppercase tracking-wider font-sansflex">Logging you in...</p>
                         </div>
                       </motion.div>
                     ) : (

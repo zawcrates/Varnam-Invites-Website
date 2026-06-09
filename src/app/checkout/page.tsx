@@ -36,6 +36,25 @@ export default function CheckoutPage() {
         console.error("Error loading customized data", e);
       }
     }
+
+    // Auto-populate contact fields if user is logged in
+    const userStr = localStorage.getItem("current_user");
+    if (userStr) {
+      try {
+        const currentUser = JSON.parse(userStr);
+        if (currentUser.name) setBillingName(currentUser.name);
+        if (currentUser.email) setBillingEmail(currentUser.email);
+        
+        // Attempt to prefill phone number from simulated database registry
+        const simulatedUsers = JSON.parse(localStorage.getItem("simulated_users") || "{}");
+        const storedUser = simulatedUsers[currentUser.email.toLowerCase()];
+        if (storedUser && storedUser.phone) {
+          setBillingPhone(storedUser.phone);
+        }
+      } catch (e) {
+        console.error("Error auto-populating billing details", e);
+      }
+    }
   }, []);
 
   // Find template metadata
@@ -126,6 +145,7 @@ export default function CheckoutPage() {
             email: billingEmail,
             phone: `${billingCountryCode}${cleanPhone}`
           },
+          userEmail: billingEmail.trim().toLowerCase(), // Link invite to user email
           purchaseDate: new Date().toISOString(),
           isPaid: true
         };

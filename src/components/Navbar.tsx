@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +11,35 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("current_user");
+    setCurrentUser(null);
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem("current_user");
+    if (userStr) {
+      try {
+        setCurrentUser(JSON.parse(userStr));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
 
   const handleLogoClick = (e: React.MouseEvent) => {
     setIsOpen(false);
@@ -58,7 +87,7 @@ export default function Navbar() {
   return (
     <>
       <nav 
-        className={`fixed top-0 left-0 w-full z-50 flex items-center transition-all duration-500 overflow-hidden ${
+        className={`fixed top-0 left-0 w-full z-50 flex items-center transition-all duration-500 ${
           isScrolled 
             ? 'h-[90px] bg-white/70 backdrop-blur-md border-b border-gold-medium/10 shadow-sm' 
             : 'h-[146px] bg-transparent'
@@ -102,13 +131,64 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Log In Button (Right aligned) */}
-          <button
-            onClick={() => setShowLogin(true)}
-            className="absolute right-6 md:right-12 z-40 inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-gold-medium/30 bg-white/20 hover:bg-luxury-dark text-luxury-dark hover:text-gold-light font-sansflex text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
-          >
-            Log In
-          </button>
+          {/* Log In / Profile (Right aligned) */}
+          {currentUser ? (
+            <div className="absolute right-6 md:right-12 z-40 flex items-center" ref={dropdownRef}>
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="focus:outline-none cursor-pointer group"
+                title="Profile Menu"
+              >
+                <div
+                  className="w-11 h-11 rounded-full bg-white/45 backdrop-blur-md border border-gold-medium/30 flex items-center justify-center text-luxury-dark transition-all duration-300 group-hover:scale-105 group-hover:bg-white/60 shadow-sm shadow-luxury-dark/5"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-luxury-dark/80 group-hover:text-luxury-dark"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+              </button>
+
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-white/75 backdrop-blur-xl border border-gold-medium/25 rounded-xl shadow-xl shadow-luxury-dark/15 overflow-hidden flex flex-col py-1.5 text-left"
+                  >
+                    <div className="px-4 py-2 border-b border-gold-medium/10">
+                      <p className="text-[9px] uppercase tracking-widest text-luxury-dark/40 font-sansflex font-bold">Signed in as</p>
+                      <p className="text-xs font-bold text-luxury-dark truncate font-sansflex">{currentUser.name}</p>
+                    </div>
+                    <Link
+                      href="/my-invites"
+                      onClick={() => setShowDropdown(false)}
+                      className="px-4 py-2.5 text-xs text-left font-sansflex font-semibold text-luxury-dark hover:bg-gold-light/25 hover:text-gold-dark transition-all duration-200 flex items-center gap-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gold-dark"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                      My Invites
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setShowDropdown(false);
+                      }}
+                      className="px-4 py-2.5 text-xs text-left font-sansflex font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 border-t border-gold-medium/5 flex items-center gap-2 cursor-pointer w-full"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                      Log Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="absolute right-6 md:right-12 z-40 inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-gold-medium/30 bg-white/20 hover:bg-luxury-dark text-luxury-dark hover:text-gold-light font-sansflex text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
+            >
+              Log In
+            </button>
+          )}
         </div>
       </nav>
 
@@ -153,6 +233,32 @@ export default function Navbar() {
                 </nav>
               </div>
 
+              {currentUser && (
+                <div className="flex flex-col items-center gap-2 mb-4 font-sansflex">
+                  <span className="text-[10px] text-luxury-dark/40 uppercase tracking-widest font-semibold">Logged In As</span>
+                  <span className="text-base font-bold text-luxury-dark uppercase tracking-wide">{currentUser.name}</span>
+                  
+                  <div className="flex gap-4 items-center mt-1">
+                    <Link
+                      href="/my-invites"
+                      onClick={() => setIsOpen(false)}
+                      className="text-xs text-gold-dark hover:text-gold-medium font-bold uppercase tracking-wider transition-colors py-1.5 px-4 border border-gold-medium/30 rounded-full hover:bg-gold-light/25"
+                    >
+                      My Invites
+                    </Link>
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      className="text-xs text-red-600 hover:text-red-800 font-bold uppercase tracking-wider transition-colors py-1.5 px-4 border border-red-200 rounded-full hover:bg-red-50 cursor-pointer"
+                    >
+                      Log Out
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Centered Drawer Footer */}
               <div className="flex flex-col items-center gap-6 border-t border-gold-medium/10 pt-8 w-full max-w-md mx-auto text-center">
                 <div className="flex flex-col gap-1.5 text-xs text-luxury-dark/60 font-sansflex">
@@ -169,7 +275,14 @@ export default function Navbar() {
       </AnimatePresence>
 
       {/* Login Modal */}
-      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
+      <LoginModal 
+        isOpen={showLogin} 
+        onClose={() => setShowLogin(false)} 
+        onLoginSuccess={(userData) => {
+          setCurrentUser(userData);
+          setShowLogin(false);
+        }} 
+      />
     </>
   );
 }

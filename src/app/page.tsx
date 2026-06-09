@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Sparkles, Smartphone, Zap, Heart, CheckCircle2, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroCarousel from '@/components/HeroCarousel';
@@ -11,6 +11,8 @@ import { TEMPLATES } from '@/data/templates';
 
 export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const categories = ['all', 'Vintage', 'Traditional', 'Modern', 'Floral'];
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -40,7 +42,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] lg:h-[832px] flex items-center justify-center pt-32 pb-20 px-6 md:px-12 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold-light via-background to-background overflow-hidden">
+      <section className="relative min-h-[85vh] lg:h-[832px] flex items-center justify-center pt-32 pb-20 px-6 md:px-12 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold-light via-white to-white overflow-hidden">
         {/* Background Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(197,168,128,0.03)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(197,168,128,0.03)_1px,_transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,_white,_transparent)]" />
         <div className="relative w-full max-w-[1280px] h-full mx-auto z-10 flex flex-col items-center justify-center lg:block">
@@ -99,21 +101,43 @@ export default function HomePage() {
           <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
             Exclusive Collection
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif text-luxury-dark tracking-wide font-semibold">
+          <h2 className="text-3xl md:text-4xl font-sansflex text-luxury-dark tracking-wide font-semibold">
             Our Featured Templates
           </h2>
           <div className="w-16 h-[2px] bg-gold-medium mx-auto mt-4" />
+
+          {/* Categories Filter */}
+          <div className="flex justify-center mt-8">
+            <div className="flex bg-gold-light/30 border border-gold-medium/15 p-1 rounded-full overflow-hidden">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`text-xs uppercase tracking-wider font-semibold px-4 py-2 rounded-full transition-all ${
+                    selectedCategory === category
+                      ? 'bg-luxury-dark text-gold-light'
+                      : 'text-foreground/60 hover:text-gold-dark'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-          {TEMPLATES.map((template) => (
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+          {TEMPLATES.filter(
+            (t) => selectedCategory === 'all' || t.category === selectedCategory
+          ).slice(0, 6).map((template) => (
             <motion.div
               key={template.id}
+              layout
               whileHover={{ y: -6 }}
-              className="bg-gold-light/40 rounded-2xl border border-gold-medium/10 overflow-hidden luxury-shadow flex flex-col h-full group"
+              className="bg-gold-light/40 rounded-2xl border border-gold-medium/10 overflow-hidden luxury-shadow hover:shadow-2xl hover:shadow-gold-medium/15 transition-all duration-300 flex flex-col h-full group"
             >
               {/* Thumbnail Container */}
-              <div className="relative aspect-[4/5] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
+              <div className="relative aspect-[3/4] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
                 <img 
                   src={template.thumbnail} 
                   alt={template.name}
@@ -126,32 +150,26 @@ export default function HomePage() {
 
               {/* Card Details */}
               <div className="p-6 flex flex-col flex-grow text-left">
-                <h3 className="font-serif text-xl text-luxury-dark mb-2 tracking-wide font-semibold">
+                <h3 className="font-sansflex text-xl text-luxury-dark mb-2 tracking-wide font-semibold">
                   {template.name}
                 </h3>
-                <p className="text-sm text-foreground/70 leading-relaxed font-sans mb-6 flex-grow">
+                <p className="text-xs sm:text-sm text-foreground/60 leading-relaxed font-sansflex mb-4 line-clamp-2">
                   {template.description}
                 </p>
                 <div className="flex justify-between items-center border-t border-gold-medium/10 pt-4 mt-auto">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-foreground/40 font-sans uppercase tracking-wider">price</span>
+                    <span className="text-[10px] text-foreground/40 font-sansflex uppercase tracking-wider">price</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-sans font-bold text-lg text-luxury-dark">₹{template.price}</span>
-                      <span className="font-sans text-xs text-foreground/40 line-through">₹{template.originalPrice}</span>
+                      <span className="font-sansflex font-bold text-lg text-luxury-dark">₹{template.price}</span>
+                      <span className="font-sansflex text-xs text-foreground/40 line-through">₹{template.originalPrice}</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Link
                       href={`/templates/${template.slug}`}
-                      className="text-xs uppercase tracking-wider font-semibold border border-gold-medium/40 hover:bg-gold-light text-luxury-dark px-4 py-2.5 rounded-full transition-colors font-sans"
+                      className="text-xs uppercase tracking-wider font-semibold bg-luxury-dark hover:bg-gold-dark text-white px-4 py-2.5 rounded-full transition-colors font-sansflex border border-gold-medium/20"
                     >
                       Preview
-                    </Link>
-                    <Link
-                      href={`/customize/${template.slug}`}
-                      className="text-xs uppercase tracking-wider font-semibold bg-luxury-dark hover:bg-gold-dark text-white px-4 py-2.5 rounded-full transition-colors font-sans"
-                    >
-                      Customize
                     </Link>
                   </div>
                 </div>
@@ -159,15 +177,24 @@ export default function HomePage() {
             </motion.div>
           ))}
         </div>
+
+        <div className="flex justify-center mt-12">
+          <Link
+            href="/templates"
+            className="inline-flex items-center justify-center bg-luxury-dark hover:bg-gold-dark text-white hover:text-gold-light font-sansflex text-xs uppercase tracking-widest font-bold w-[200px] h-[48px] rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-luxury-dark/10 border border-gold-medium/20"
+          >
+            Load More
+          </Link>
+        </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 px-6 md:px-12 bg-gold-light/25 border-y border-gold-medium/10">
+      <section className="py-24 px-6 md:px-12 bg-luxury-dark border-y border-gold-medium/20">
         <div className="max-w-7xl mx-auto text-center mb-16">
-          <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
+          <span className="text-gold-medium text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
             Seamless Process
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif text-luxury-dark tracking-wide font-semibold">
+          <h2 className="text-3xl md:text-4xl font-sansflex text-white tracking-wide font-semibold">
             How It Works
           </h2>
           <div className="w-16 h-[2px] bg-gold-medium mx-auto mt-4" />
@@ -180,14 +207,14 @@ export default function HomePage() {
             { step: "03", title: "Secure Checkout", desc: "Review your invitation, pay securely via Razorpay, and complete the order inside minutes." },
             { step: "04", title: "Share Instantly", desc: "Get your personalized web invitation link and share it directly with family and friends on WhatsApp or socials." }
           ].map((item, idx) => (
-            <div key={idx} className="relative flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-gold-medium/10 luxury-shadow">
-              <span className="font-serif text-4xl font-bold text-gold-medium/30 mb-4 block">
+            <div key={idx} className="relative flex flex-col items-center text-center p-6 bg-white/5 rounded-2xl border border-gold-medium/10 shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-gold-medium/30 transition-all duration-300">
+              <span className="font-sansflex text-4xl font-bold text-gold-medium/45 mb-4 block">
                 {item.step}
               </span>
-              <h3 className="font-serif text-lg text-luxury-dark font-semibold tracking-wide mb-2">
+              <h3 className="font-sansflex text-lg text-white font-semibold tracking-wide mb-2">
                 {item.title}
               </h3>
-              <p className="text-xs text-foreground/70 leading-relaxed font-sans">
+              <p className="text-xs text-gold-light/65 leading-relaxed font-sansflex">
                 {item.desc}
               </p>
             </div>
@@ -195,115 +222,91 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-24 px-6 md:px-12 bg-white">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-5 text-left">
-            <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
-              Unique Benefits
-            </span>
-            <h2 className="text-3xl md:text-4xl font-serif text-luxury-dark tracking-wide font-semibold mb-6">
-              Why Choose Varnam Invites?
-            </h2>
-            <p className="text-sm text-foreground/70 leading-relaxed font-sans mb-8">
-              We redefine traditional printed cards with animations, custom music, and instant sharing. Give your guests an unforgettable luxury experience before the wedding even starts.
-            </p>
-            <div className="flex flex-col gap-4">
-              {[
-                "Save money on expensive printing and postage",
-                "Update location and times easily if plans change",
-                "Instant deliveries via digital communication",
-                "Environment friendly paperless wedding card option"
-              ].map((text, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-gold-dark shrink-0" />
-                  <span className="text-sm font-sans font-medium text-foreground/80">{text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[
-              { icon: Heart, title: "Premium Designs", desc: "Curated aesthetic typography, layouts, and art pieces crafted specifically for modern marriages." },
-              { icon: Smartphone, title: "Mobile Friendly", desc: "Responsively coded pages that display stunningly on every layout, especially mobile device viewports." },
-              { icon: Zap, title: "Instant Setup", desc: "No complex tools or layout builders. Fill standard fields and see updates instantly without page refreshes." },
-              { icon: Sparkles, title: "Elegant Experience", desc: "Surprise your invitees with parallax sky effects, fluid smooth-scroll layouts, and music players." }
-            ].map((feature, idx) => (
-              <div key={idx} className="p-8 bg-gold-light/30 rounded-2xl border border-gold-medium/10 text-left">
-                <feature.icon className="w-8 h-8 text-gold-dark mb-4" />
-                <h3 className="font-serif text-lg font-semibold text-luxury-dark tracking-wide mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-xs text-foreground/75 leading-relaxed font-sans">
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials */}
-      <section className="py-24 px-6 md:px-12 bg-gold-light/10 border-t border-gold-medium/5">
+      <section className="py-24 px-6 md:px-12 bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
             Love Stories
           </span>
-          <h2 className="text-3xl font-serif text-luxury-dark tracking-wide font-semibold mb-12">
+          <h2 className="text-3xl font-sansflex text-luxury-dark tracking-wide font-semibold mb-12">
             What Couples Say
           </h2>
-          <div className="relative p-10 bg-white rounded-2xl border border-gold-medium/15 luxury-shadow max-w-2xl mx-auto">
-            <span className="absolute top-2 left-6 text-7xl font-serif text-gold-medium/10 select-none">“</span>
-            <p className="text-sm italic leading-relaxed text-foreground/80 font-serif mb-6 relative z-10">
+          <div className="relative p-10 bg-gold-light/40 rounded-2xl border border-gold-medium/10 luxury-shadow max-w-2xl mx-auto">
+            <span className="absolute top-2 left-6 text-7xl font-sansflex text-gold-medium/10 select-none">“</span>
+            <p className="text-sm italic leading-relaxed text-foreground/80 font-sansflex mb-6 relative z-10">
               &ldquo;We chose the Vintage Parchment scroll for our wedding. Our friends and family were absolutely amazed by the music and the parallax effect. Customizing it took under 5 minutes, and we got our link instantly after pay. Highly recommend Varnam Invites!&rdquo;
             </p>
             <div>
-              <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-luxury-dark">Aarav & Riya</h4>
-              <p className="text-[10px] text-foreground/40 font-sans uppercase tracking-widest mt-0.5">Mumbai, India</p>
+              <h4 className="font-sansflex font-bold text-xs uppercase tracking-wider text-luxury-dark">Aarav & Riya</h4>
+              <p className="text-[10px] text-foreground/40 font-sansflex uppercase tracking-widest mt-0.5">Mumbai, India</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Accordion Section */}
-      <section className="py-24 px-6 md:px-12 bg-white border-t border-gold-medium/10">
-        <div className="max-w-3xl mx-auto">
+      <section className="py-24 px-6 md:px-12 bg-luxury-dark border-t border-gold-medium/20">
+        <div className="max-w-2xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
+            <span className="text-gold-medium text-xs uppercase tracking-[0.25em] font-semibold mb-3 block">
               Clarifications
             </span>
-            <h2 className="text-3xl font-serif text-luxury-dark tracking-wide font-semibold">
+            <h2 className="text-3xl font-sansflex text-white tracking-wide font-semibold">
               Frequently Asked Questions
             </h2>
             <div className="w-16 h-[2px] bg-gold-medium mx-auto mt-4" />
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col">
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index;
               return (
                 <div 
                   key={index} 
-                  className="bg-gold-light/20 border border-gold-medium/10 rounded-xl overflow-hidden transition-all duration-300"
+                  className="border-b border-gold-medium/15 last:border-b-0 transition-all duration-300"
                 >
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="w-full px-6 py-5 flex justify-between items-center text-left hover:bg-gold-light/40 transition-colors"
+                    className="w-full py-4.5 px-1 flex justify-between items-center text-left transition-colors cursor-pointer group"
                   >
-                    <span className="font-serif font-semibold text-sm sm:text-base text-luxury-dark">
+                    <span className="font-sansflex font-semibold text-xs sm:text-sm text-white group-hover:text-gold-medium transition-colors pr-4">
                       {faq.q}
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-gold-dark transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} />
+                    <Plus className={`w-4 h-4 text-gold-medium shrink-0 transition-transform duration-300 ${isOpen ? 'transform rotate-45 text-white' : 'group-hover:text-white'}`} />
                   </button>
-                  {isOpen && (
-                    <div className="px-6 pb-6 text-xs sm:text-sm text-foreground/75 leading-relaxed font-sans animate-slide-down">
-                      {faq.a}
-                    </div>
-                  )}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="content"
+                        initial="collapsed"
+                        animate="open"
+                        exit="collapsed"
+                        variants={{
+                          open: { opacity: 1, height: "auto" },
+                          collapsed: { opacity: 0, height: 0 }
+                        }}
+                        transition={{ duration: 0.25, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-1 pb-4.5 pt-1 text-xs sm:text-sm text-gold-light/70 leading-relaxed font-sansflex">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
+          </div>
+
+          <div className="flex justify-center mt-12">
+            <Link
+              href="mailto:support@varnaminvites.com?subject=Enquiry%20regarding%20Wedding%20Invitation%20Templates"
+              className="inline-flex items-center justify-center bg-gold-medium hover:bg-gold-dark text-luxury-dark hover:text-white font-sansflex text-xs uppercase tracking-widest font-bold w-[200px] h-[48px] rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-gold-medium/15 border border-gold-medium/20"
+            >
+              Enquire
+            </Link>
           </div>
         </div>
       </section>
