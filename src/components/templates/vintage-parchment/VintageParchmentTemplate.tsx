@@ -4,7 +4,6 @@ import React, { useEffect, useRef } from 'react';
 import { ReactLenis } from '@studio-freight/react-lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import VintageParchmentPreloader from './VintageParchmentPreloader';
 import VintageParchmentLoader from './VintageParchmentLoader';
 import VintageParchmentWhatsappButton from './VintageParchmentWhatsappButton';
 import { InviteData } from '@/data/templates';
@@ -64,9 +63,6 @@ export default function VintageParchmentTemplate({ inviteData }: VintageParchmen
   return (
     <ReactLenis root options={{ lerp: 0.08, smoothWheel: true }}>
       <div className="vintage-template-body">
-        {data.showPreloader !== false && (
-          <VintageParchmentPreloader duration={data.preloaderTime} />
-        )}
         
         <div className="app-container">
           {/* Background wrapper for parallax mountain sky */}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use, useTransition } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare } from 'lucide-react';
@@ -15,7 +15,7 @@ type TabType = 'couple' | 'event' | 'rsvp-story';
 export default function CustomizePage({ params }: PageProps) {
   const router = useRouter();
   const { slug } = use(params);
-  const [isPending, startTransition] = useTransition();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Find template
   const template = TEMPLATES.find(t => t.slug === slug) || TEMPLATES[0];
@@ -25,6 +25,9 @@ export default function CustomizePage({ params }: PageProps) {
 
   // Preview frame view mode
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
+
+  // Mobile active layout tab switcher ('form' or 'preview')
+  const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
 
   // Form State initialized with template defaults
   const [formData, setFormData] = useState<InviteData>(template.defaultData);
@@ -53,14 +56,13 @@ export default function CustomizePage({ params }: PageProps) {
   };
 
   const handleProcedToCheckout = () => {
+    setIsNavigating(true);
     // Save final state in localStorage
     localStorage.setItem(`varnam_active_slug`, slug);
     localStorage.setItem(`varnam_active_custom_data`, JSON.stringify(formData));
     
     // Redirect to Checkout page
-    startTransition(() => {
-      router.push('/checkout');
-    });
+    router.push('/checkout');
   };
 
   // Construct search params string for live iframe updates
@@ -94,10 +96,10 @@ export default function CustomizePage({ params }: PageProps) {
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </Link>
           <div>
-            <h1 className="font-sansflex font-bold text-base sm:text-lg tracking-wide">
+            <h1 className="font-sansflex font-bold text-sm sm:text-lg tracking-wide truncate max-w-[150px] sm:max-w-none">
               Customize {template.name}
             </h1>
-            <p className="text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
+            <p className="hidden sm:block text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
               Live Editing Workspace
             </p>
           </div>
@@ -106,19 +108,22 @@ export default function CustomizePage({ params }: PageProps) {
         {/* Proceed to checkout CTA */}
         <button
           onClick={handleProcedToCheckout}
-          disabled={isPending}
-          className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-6 py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md disabled:opacity-50"
+          disabled={isNavigating}
+          className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md disabled:opacity-50 shrink-0"
         >
           <CreditCard className="w-3.5 h-3.5" />
-          <span>{isPending ? 'Proceeding...' : 'Proceed to Checkout'}</span>
+          <span className="hidden sm:inline">{isNavigating ? 'Proceeding...' : 'Proceed to Checkout'}</span>
+          <span className="inline sm:hidden">{isNavigating ? '...' : 'Checkout'}</span>
         </button>
       </header>
 
       {/* Main Workspace split panel */}
-      <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-grow flex flex-col lg:flex-row overflow-hidden relative">
         
         {/* Left Side: Customize Form */}
-        <aside className="w-full lg:w-[480px] bg-white border-r border-gold-medium/10 flex flex-col shrink-0 overflow-hidden h-1/2 lg:h-full">
+        <aside className={`w-full lg:w-[480px] bg-white border-r border-gold-medium/10 flex flex-col shrink-0 overflow-hidden lg:h-full transition-all ${
+          mobileView === 'form' ? 'flex-grow h-full' : 'hidden lg:flex'
+        }`}>
           {/* Form Tabs */}
           <div className="flex border-b border-gold-medium/10 shrink-0">
             {[
@@ -328,11 +333,15 @@ export default function CustomizePage({ params }: PageProps) {
               </div>
             )}
 
+            {/* Spacing element at the bottom to prevent layout overlap with floating mobile switcher */}
+            <div className="h-24 lg:hidden" />
           </div>
         </aside>
 
         {/* Right Side: Iframe Live Preview Panel */}
-        <main className="flex-grow bg-gradient-to-br from-[#f2efe9] to-[#eae5db] flex flex-col h-1/2 lg:h-full overflow-hidden p-6">
+        <main className={`flex-grow bg-gradient-to-br from-[#f2efe9] to-[#eae5db] flex flex-col lg:h-full overflow-hidden p-6 ${
+          mobileView === 'preview' ? 'flex-grow h-full' : 'hidden lg:flex'
+        }`}>
           {/* Preview Viewport Switcher */}
           <div className="flex justify-between items-center mb-4 shrink-0">
             <span className="text-xs uppercase tracking-wider font-semibold text-foreground/50 font-sansflex">
@@ -399,6 +408,30 @@ export default function CustomizePage({ params }: PageProps) {
           </div>
         </main>
 
+      </div>
+
+      {/* Mobile Floating Tab Switcher */}
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-gold-medium/20 shadow-xl rounded-full p-1 flex gap-1.5 z-50">
+        <button
+          onClick={() => setMobileView('form')}
+          className={`px-4.5 py-2.5 rounded-full text-xs font-sansflex uppercase tracking-wider font-semibold transition-all ${
+            mobileView === 'form'
+              ? 'bg-luxury-dark text-gold-light shadow-md'
+              : 'text-foreground/50 hover:text-gold-dark'
+          }`}
+        >
+          Edit Details
+        </button>
+        <button
+          onClick={() => setMobileView('preview')}
+          className={`px-4.5 py-2.5 rounded-full text-xs font-sansflex uppercase tracking-wider font-semibold transition-all ${
+            mobileView === 'preview'
+              ? 'bg-luxury-dark text-gold-light shadow-md'
+              : 'text-foreground/50 hover:text-gold-dark'
+          }`}
+        >
+          Live Preview
+        </button>
       </div>
     </div>
   );

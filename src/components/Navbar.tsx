@@ -89,8 +89,8 @@ export default function Navbar() {
       <nav 
         className={`fixed top-0 left-0 w-full z-50 flex items-center transition-all duration-500 ${
           isScrolled 
-            ? 'h-[90px] bg-white/70 backdrop-blur-md border-b border-gold-medium/10 shadow-sm' 
-            : 'h-[146px] bg-transparent'
+            ? 'h-[70px] md:h-[90px] bg-white/70 backdrop-blur-md border-b border-gold-medium/10 shadow-sm' 
+            : 'h-[100px] md:h-[146px] bg-transparent'
         }`}
       >
         <div className="relative w-full max-w-7xl mx-auto px-6 md:px-12 flex justify-center items-center h-full">
@@ -119,14 +119,16 @@ export default function Navbar() {
               />
             </div>
           </button>
-
+ 
           {/* Brand Logo Link Centered */}
           <Link href="/" onClick={handleLogoClick} className="flex items-center justify-center group z-40">
             <img 
               src="/Varnam_svg3.png" 
               alt="Varnam Invites Logo" 
-              className={`w-auto object-contain transition-all duration-500 group-hover:scale-[1.03] h-30 sm:h-50 translate-y-[15px] origin-center ${
-                isScrolled ? 'scale-[0.8]' : 'scale-100'
+              className={`w-auto object-contain transition-all duration-500 group-hover:scale-[1.03] h-24 sm:h-44 origin-center ${
+                isScrolled 
+                  ? 'scale-[0.7] sm:scale-[0.8] translate-y-[2px] sm:translate-y-[10px]' 
+                  : 'scale-100 translate-y-[8px] sm:translate-y-[15px]'
               }`}
             />
           </Link>
@@ -213,7 +215,7 @@ export default function Navbar() {
                   {[
                     { name: 'Home', href: '/' },
                     { name: 'Browse Templates', href: '/templates' },
-                    { name: 'Contact Us', href: '#contact' },
+                    { name: 'Contact Us', href: '/#contact' },
                   ].map((link, idx) => (
                     <motion.div
                       key={link.name}

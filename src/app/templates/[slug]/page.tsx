@@ -35,12 +35,12 @@ export default function TemplateDetailsPage({ params }: PageProps) {
           >
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </Link>
-          <div>
-            <h1 className="font-sansflex font-bold text-base sm:text-lg tracking-wide">
+          <div className="max-w-[120px] sm:max-w-none">
+            <h1 className="font-sansflex font-bold text-sm sm:text-lg tracking-wide truncate">
               {template.name}
             </h1>
-            <p className="text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
-              ₹{template.price} &bull; {template.category} Style
+            <p className="text-[9px] sm:text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
+              ₹{template.price} &bull; {template.category}
             </p>
           </div>
         </div>
@@ -87,10 +87,10 @@ export default function TemplateDetailsPage({ params }: PageProps) {
           {/* Primary CTA */}
           <Link
             href={`/customize/${template.slug}`}
-            className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-5 py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md shrink-0"
+            className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md shrink-0"
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span>Customize</span>
+            <span className="hidden sm:inline">Customize</span>
           </Link>
         </div>
 
@@ -100,7 +100,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
       <main className="flex-grow flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#f2efe9] to-[#eae5db]">
         {viewMode === 'mobile' ? (
           /* Phone Frame mockup */
-          <div className="relative w-[340px] sm:w-[370px] aspect-[9/18.5] bg-luxury-dark rounded-[48px] p-3 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/20 animate-fade-in">
+          <div className="relative w-full max-w-[340px] sm:max-w-[370px] aspect-[9/18.5] bg-luxury-dark rounded-[48px] p-3 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/20 animate-fade-in">
             {/* Phone Notch/Speaker */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-luxury-dark rounded-b-2xl z-30 flex items-center justify-center">
               {/* Camera Lens */}

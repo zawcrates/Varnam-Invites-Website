@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ShoppingBag, ShieldCheck, CheckCircle, CreditCard, Sparkles } from 'lucide-react';
@@ -10,7 +10,7 @@ import { TEMPLATES, InviteData } from '@/data/templates';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const [templateSlug, setTemplateSlug] = useState<string | null>(null);
   const [customData, setCustomData] = useState<InviteData | null>(null);
@@ -158,9 +158,8 @@ export default function CheckoutPage() {
         // Move to success
         setPaymentStep('success');
         setTimeout(() => {
-          startTransition(() => {
-            router.push(`/success?id=${invitationId}`);
-          });
+          setIsNavigating(true);
+          router.push(`/success?id=${invitationId}`);
         }, 1500);
       }
     }, 1200);
@@ -187,7 +186,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
           {/* Left Side: Order summary details & billing inputs */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-8 order-2 lg:order-1">
             
             {/* Step 1: Preview Details Recap */}
             <div className="bg-white border border-gold-medium/10 rounded-2xl p-6 md:p-8 luxury-shadow text-left">
@@ -290,7 +289,7 @@ export default function CheckoutPage() {
               {/* Pay Button */}
               <button
                 type="submit"
-                disabled={isPending || paymentStep !== 'idle'}
+                disabled={isNavigating || paymentStep !== 'idle'}
                 className="w-full inline-flex items-center justify-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-sm uppercase tracking-widest font-semibold py-4.5 rounded-full transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-luxury-dark/10 disabled:opacity-50"
               >
                 <CreditCard className="w-4 h-4" />
@@ -301,7 +300,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Right Side: Order summary receipt card */}
-          <aside className="lg:col-span-5 bg-white border border-gold-medium/10 rounded-2xl overflow-hidden luxury-shadow">
+          <aside className="lg:col-span-5 bg-white border border-gold-medium/10 rounded-2xl overflow-hidden luxury-shadow order-1 lg:order-2">
             
             {/* Header image */}
             <div className="h-44 overflow-hidden relative border-b border-gold-medium/10">

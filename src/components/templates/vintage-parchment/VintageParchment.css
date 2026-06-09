@@ -23,7 +23,7 @@
 .vintage-template-body {
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  background-color: #fdfbf7;
+  background-color: #eae5db; /* Neutral dark cream background for desktop gutters */
   color: #1a1a1a;
 }
 
@@ -36,6 +36,14 @@
   width: 100%;
   position: relative;
   background-color: #fdfbf7;
+}
+
+@media (min-width: 769px) {
+  .app-container {
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .background-wrapper {
@@ -110,14 +118,14 @@
 
 .name-primary {
   font-family: 'Sunroll', serif;
-  font-size: 5vw;
+  font-size: clamp(20px, 5vw, 32px);
   font-weight: normal;
   letter-spacing: 4px;
 }
 
 .name-connector {
   font-family: 'Whitley Pattrycia', cursive;
-  font-size: 4vw;
+  font-size: clamp(16px, 4vw, 26px);
   font-weight: normal;
   margin: -1.5vw 0; /* Pulls the script closer to the names */
 }
@@ -143,27 +151,27 @@
 
 .invite-welcome {
   font-family: 'Sunroll', serif;
-  font-size: 2vw;
+  font-size: clamp(9px, 2vw, 13px);
   letter-spacing: 0.1em;
   margin-bottom: 1.5vw !important;
 }
 
 .invite-name {
   font-family: 'Sunroll', serif;
-  font-size: 5vw;
+  font-size: clamp(20px, 5vw, 32px);
   font-weight: normal;
   letter-spacing: 0.05em;
 }
 
 .invite-and {
   font-family: 'Sunroll', serif;
-  font-size: 2.5vw;
+  font-size: clamp(11px, 2.5vw, 16px);
   margin: 0.5vw 0 !important;
 }
 
 .invite-message {
   font-family: 'ShunsineDemo', serif;
-  font-size: 2vw;
+  font-size: clamp(10px, 2vw, 14px);
   font-weight: 500;
   line-height: 1.8;
   margin-top: 2vw;
@@ -173,7 +181,7 @@
 
 .invite-month {
   font-family: 'Shanln', serif;
-  font-size: 5vw;
+  font-size: clamp(20px, 5vw, 32px);
   letter-spacing: 0.1em;
   margin-top: 1.5vw;
   margin-bottom: 0.5vw !important;
@@ -181,21 +189,21 @@
 
 .invite-date {
   font-family: 'Shanln', serif;
-  font-size: 5.5vw; /* Increased from 3.5vw */
+  font-size: clamp(22px, 5.5vw, 36px); /* Increased from 3.5vw */
   letter-spacing: 0.15em;
   margin-bottom: 1vw !important;
 }
 
 .invite-time {
   font-family: 'Shanln', serif; 
-  font-size: 3.5vw; 
+  font-size: clamp(14px, 3.5vw, 22px); 
   letter-spacing: 0.1em;
 }
 
 .invite-location {
   margin-top: 1.5vw;
   font-family: 'Shanln', serif;
-  font-size: 3.2vw;
+  font-size: clamp(13px, 3.2vw, 20px);
   letter-spacing: 0.1em;
   line-height: 1.2;
 }
@@ -228,7 +236,7 @@
   z-index: 5;
   color: #834701;
   font-family: 'Shanln', serif;
-  font-size: 3.5vw;
+  font-size: clamp(13px, 3.5vw, 22px);
   line-height: 1.6;
   padding: 2vw;
   box-sizing: border-box;

@@ -15,6 +15,18 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   // Common states
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
+  const [maxModalHeight, setMaxModalHeight] = useState(660);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        setMaxModalHeight(window.innerHeight - 40);
+      };
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   // Login states
   const [credential, setCredential] = useState("");
@@ -234,7 +246,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
             {/* Height-animated outer container */}
             <motion.div
               animate={{ 
-                height: isSignup ? (signupSuccess ? 320 : 660) : 460 
+                height: isSignup 
+                  ? (signupSuccess ? Math.min(320, maxModalHeight) : Math.min(660, maxModalHeight)) 
+                  : Math.min(460, maxModalHeight)
               }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full max-w-sm overflow-visible"
@@ -269,7 +283,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     </svg>
                   </button>
 
-                  <div className="px-8 pt-10 pb-8 flex-grow flex flex-col justify-center">
+                  <div className="px-8 pt-10 pb-8 flex-grow flex flex-col justify-center overflow-y-auto">
                     {/* Header */}
                     <div className="mb-8 text-center">
                       <p className="text-[10px] uppercase tracking-[0.2em] text-gold-dark font-sansflex font-semibold mb-1">
@@ -391,7 +405,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     </svg>
                   </button>
 
-                  <div className="px-8 pt-8 pb-6 flex-grow flex flex-col justify-center">
+                  <div className="px-8 pt-8 pb-6 flex-grow flex flex-col justify-center overflow-y-auto">
                     
                     {signupSuccess ? (
                       /* Success View */

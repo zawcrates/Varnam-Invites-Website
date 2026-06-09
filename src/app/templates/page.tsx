@@ -88,7 +88,7 @@ export default function TemplatesPage() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`text-xs uppercase tracking-wider font-semibold px-4 py-2 rounded-full transition-all ${
+                  className={`text-[10px] sm:text-xs uppercase tracking-wider font-semibold px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all ${
                     selectedCategory === category
                       ? 'bg-luxury-dark text-gold-light'
                       : 'text-foreground/60 hover:text-gold-dark'
