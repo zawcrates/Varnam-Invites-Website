@@ -11,6 +11,16 @@ function InvitationPreviewContent() {
   // Extract parameters
   const templateSlug = searchParams.get('template') || 'vintage-parchment';
   
+  const eventsParam = searchParams.get('events');
+  let parsedEvents = undefined;
+  if (eventsParam) {
+    try {
+      parsedEvents = JSON.parse(eventsParam);
+    } catch (e) {
+      console.error("Failed to parse events JSON parameter", e);
+    }
+  }
+
   // Reconstruct inviteData
   const inviteData: Partial<InviteData> = {
     showPreloader: searchParams.get('showPreloader') === 'true',
@@ -31,6 +41,7 @@ function InvitationPreviewContent() {
     storyText: searchParams.get('storyText') || undefined,
     whatsappNumber: searchParams.get('whatsappNumber') || undefined,
     audioSrc: searchParams.get('audioSrc') || undefined,
+    events: parsedEvents,
   };
 
   return <TemplateRenderer slug={templateSlug} inviteData={inviteData} />;

@@ -1,3 +1,11 @@
+export interface EventItem {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+}
+
 export interface InviteData {
   showPreloader: boolean;
   preloaderTime: number;
@@ -17,6 +25,7 @@ export interface InviteData {
   storyText: string;
   whatsappNumber: string;
   audioSrc: string;
+  events?: EventItem[];
 }
 
 export interface Template {
@@ -73,6 +82,29 @@ export const TEMPLATES: Template[] = [
       storyText: "Our journey together began with a simple conversation, and now we are embarking on a lifelong adventure of love and companionship. Join us as we exchange our vows and celebrate the beginning of our forever.",
       whatsappNumber: "1234567890",
       audioSrc: "/bg_music.mp3",
+      events: [
+        {
+          id: "1",
+          title: "Haldi Ceremony",
+          date: "Saturday, 22 Nov 2025",
+          time: "11:00 AM",
+          location: "Groom's Residence"
+        },
+        {
+          id: "2",
+          title: "Wedding Ceremony",
+          date: "Sunday, 23 Nov 2025",
+          time: "07:45 AM - 08:45 AM",
+          location: "THE GRAND BALLROOM"
+        },
+        {
+          id: "3",
+          title: "Reception Party",
+          date: "Monday, 24 Nov 2025",
+          time: "07:00 PM onwards",
+          location: "THE GRAND BALLROOM"
+        }
+      ]
     }
   },
   {
@@ -111,7 +143,23 @@ export const TEMPLATES: Template[] = [
       mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.673891461947!2d75.7872709!3d26.9124336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db61234b5f8ef%3A0x8677c77c07b6c8d7!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
       storyText: "Two hearts bound by love, celebrating a union of two families. We invite you to bless our union as we take our sacred vows in the royal heritage of Rajasthan.",
       whatsappNumber: "9876543210",
-      audioSrc: "/bg_music.mp3"
+      audioSrc: "/bg_music.mp3",
+      events: [
+        {
+          id: "1",
+          title: "Sangeet & Mehendi",
+          date: "Tuesday, 17 Dec 2026",
+          time: "06:00 PM onwards",
+          location: "THE PALACE PALAZZO"
+        },
+        {
+          id: "2",
+          title: "Royal Wedding",
+          date: "Wednesday, 18 Dec 2026",
+          time: "06:00 PM onwards",
+          location: "THE PALACE PALAZZO"
+        }
+      ]
     }
   },
   {
@@ -149,7 +197,23 @@ export const TEMPLATES: Template[] = [
       mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.673891461947!2d75.7872709!3d26.9124336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db61234b5f8ef%3A0x8677c77c07b6c8d7!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
       storyText: "Two lives, two hearts, joined together in friendship and love. Please join us as we begin our new life together.",
       whatsappNumber: "1234567890",
-      audioSrc: "/bg_music.mp3"
+      audioSrc: "/bg_music.mp3",
+      events: [
+        {
+          id: "1",
+          title: "Ring Ceremony",
+          date: "Friday, 09 Jan 2026",
+          time: "05:00 PM",
+          location: "THE ROSE GARDENS"
+        },
+        {
+          id: "2",
+          title: "Wedding Reception",
+          date: "Saturday, 10 Jan 2026",
+          time: "07:00 PM onwards",
+          location: "THE ROSE GARDENS"
+        }
+      ]
     }
   },
   {
@@ -187,7 +251,16 @@ export const TEMPLATES: Template[] = [
       mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.673891461947!2d75.7872709!3d26.9124336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db61234b5f8ef%3A0x8677c77c07b6c8d7!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
       storyText: "Our story is our own, but the celebration is for everyone we love. Come toast to our new beginning.",
       whatsappNumber: "9876543210",
-      audioSrc: "/bg_music.mp3"
+      audioSrc: "/bg_music.mp3",
+      events: [
+        {
+          id: "1",
+          title: "Wedding Ceremony",
+          date: "Friday, 14 Feb 2026",
+          time: "05:30 PM onwards",
+          location: "THE LUXE GALLERY"
+        }
+      ]
     }
   },
   {
@@ -225,7 +298,23 @@ export const TEMPLATES: Template[] = [
       mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.673891461947!2d75.7872709!3d26.9124336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db61234b5f8ef%3A0x8677c77c07b6c8d7!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
       storyText: "As we join our hearts in marriage, we invite you to be part of our celebration. Your presence and blessings mean the world to us.",
       whatsappNumber: "1234567890",
-      audioSrc: "/bg_music.mp3"
+      audioSrc: "/bg_music.mp3",
+      events: [
+        {
+          id: "1",
+          title: "Sangeet & Dance",
+          date: "Saturday, 07 Mar 2026",
+          time: "07:00 PM onwards",
+          location: "THE GOLDEN PLAZA"
+        },
+        {
+          id: "2",
+          title: "Holy Matrimony",
+          date: "Sunday, 08 Mar 2026",
+          time: "10:30 AM onwards",
+          location: "THE GOLDEN PLAZA"
+        }
+      ]
     }
   },
   {
@@ -263,7 +352,23 @@ export const TEMPLATES: Template[] = [
       mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.673891461947!2d75.7872709!3d26.9124336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db61234b5f8ef%3A0x8677c77c07b6c8d7!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
       storyText: "Two stories uniting as one family. We request the honor of your presence as we celebrate this sacred union.",
       whatsappNumber: "9876543210",
-      audioSrc: "/bg_music.mp3"
+      audioSrc: "/bg_music.mp3",
+      events: [
+        {
+          id: "1",
+          title: "Sangeet Sandhya",
+          date: "Friday, 24 Apr 2026",
+          time: "07:00 PM onwards",
+          location: "THE ROYAL PALACE HALL"
+        },
+        {
+          id: "2",
+          title: "Wedding Ceremony",
+          date: "Saturday, 25 Apr 2026",
+          time: "06:30 PM onwards",
+          location: "THE ROYAL PALACE HALL"
+        }
+      ]
     }
   }
 ];

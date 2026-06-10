@@ -100,7 +100,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
       <main className="flex-grow flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#f2efe9] to-[#eae5db]">
         {viewMode === 'mobile' ? (
           /* Phone Frame mockup */
-          <div className="relative w-full max-w-[340px] sm:max-w-[370px] aspect-[9/18.5] bg-luxury-dark rounded-[48px] p-3 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/20 animate-fade-in">
+          <div className="relative w-full max-w-[340px] sm:max-w-[370px] aspect-[8/14] bg-luxury-dark rounded-[48px] p-3 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/20 animate-fade-in">
             {/* Phone Notch/Speaker */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-luxury-dark rounded-b-2xl z-30 flex items-center justify-center">
               {/* Camera Lens */}
@@ -123,7 +123,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
           </div>
         ) : (
           /* Full Desktop Iframe view */
-          <div className="w-full h-full rounded-2xl overflow-hidden bg-white shadow-xl border border-gold-medium/10 max-w-6xl mx-auto flex flex-col animate-fade-in">
+          <div className="w-full h-full rounded-2xl overflow-hidden bg-white shadow-xl border border-gold-medium/10 max-w-5xl mx-auto flex flex-col animate-fade-in">
             {/* Desktop browser bar */}
             <div className="h-8 bg-neutral-100/80 border-b border-neutral-200 px-4 flex items-center gap-2 shrink-0">
               <div className="w-2.5 h-2.5 rounded-full bg-neutral-300" />

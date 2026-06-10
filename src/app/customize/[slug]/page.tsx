@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { TEMPLATES, InviteData } from '@/data/templates';
 
 interface PageProps {
@@ -37,12 +37,16 @@ export default function CustomizePage({ params }: PageProps) {
     const saved = localStorage.getItem(`varnam_custom_${slug}`);
     if (saved) {
       try {
-        setFormData(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (!parsed.events && template.defaultData.events) {
+          parsed.events = template.defaultData.events;
+        }
+        setFormData(parsed);
       } catch (e) {
         console.error("Error loading cached form data", e);
       }
     }
-  }, [slug]);
+  }, [slug, template.defaultData.events]);
 
   // Handle Input Changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -50,6 +54,51 @@ export default function CustomizePage({ params }: PageProps) {
     setFormData(prev => {
       const updated = { ...prev, [name]: value };
       // Cache in localStorage
+      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleAddEvent = () => {
+    setFormData(prev => {
+      const currentEvents = prev.events || [];
+      const updated = {
+        ...prev,
+        events: [
+          ...currentEvents,
+          {
+            id: Date.now().toString(),
+            title: `Event ${currentEvents.length + 1}`,
+            date: "",
+            time: "",
+            location: ""
+          }
+        ]
+      };
+      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleUpdateEvent = (id: string, field: string, value: string) => {
+    setFormData(prev => {
+      const currentEvents = prev.events || [];
+      const updated = {
+        ...prev,
+        events: currentEvents.map(evt => evt.id === id ? { ...evt, [field]: value } : evt)
+      };
+      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleDeleteEvent = (id: string) => {
+    setFormData(prev => {
+      const currentEvents = prev.events || [];
+      const updated = {
+        ...prev,
+        events: currentEvents.filter(evt => evt.id !== id)
+      };
       localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
       return updated;
     });
@@ -73,7 +122,11 @@ export default function CustomizePage({ params }: PageProps) {
     
     Object.entries(formData).forEach(([key, value]) => {
       if (key !== 'showPreloader' && value !== undefined) {
-        query.set(key, String(value));
+        if (key === 'events') {
+          query.set(key, JSON.stringify(value));
+        } else {
+          query.set(key, String(value));
+        }
       }
     });
 
@@ -151,7 +204,7 @@ export default function CustomizePage({ params }: PageProps) {
           </div>
 
           {/* Tab content area (scrollable) */}
-          <div className="flex-grow overflow-y-auto p-6 space-y-6 text-left">
+          <div data-lenis-prevent className="flex-grow overflow-y-auto p-6 space-y-6 text-left">
             
             {/* TAB 1: Couple names */}
             {activeTab === 'couple' && (
@@ -320,15 +373,94 @@ export default function CustomizePage({ params }: PageProps) {
                   />
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs uppercase tracking-wider font-semibold text-foreground/60">Our Love Story Text</label>
-                  <textarea
-                    name="storyText"
-                    value={formData.storyText}
-                    onChange={handleInputChange}
-                    rows={6}
-                    className="w-full bg-gold-light/20 border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3 text-sm outline-none text-luxury-dark transition-all leading-relaxed"
-                  />
+                <div className="flex flex-col gap-2.5 pt-2">
+                  <div className="flex justify-between items-center pb-2 border-b border-gold-medium/10">
+                    <label className="text-xs uppercase tracking-wider font-semibold text-foreground/60">Wedding Events</label>
+                    <button
+                      type="button"
+                      onClick={handleAddEvent}
+                      className="flex items-center gap-1 bg-gold-medium/10 hover:bg-gold-medium/20 text-gold-dark text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-md transition-all"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>Add Event</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {(!formData.events || formData.events.length === 0) ? (
+                      <p className="text-[11px] text-foreground/45 text-center py-4 italic">
+                        No events added yet. Click &quot;Add Event&quot; to begin.
+                      </p>
+                    ) : (
+                      formData.events.map((evt, idx) => (
+                        <div 
+                          key={evt.id} 
+                          className="bg-gold-light/5 border border-gold-medium/10 rounded-xl p-3.5 space-y-3 relative"
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-sansflex font-bold text-luxury-dark/70 uppercase tracking-widest">
+                              Event #{idx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteEvent(evt.id)}
+                              className="text-foreground/40 hover:text-red-600 transition-colors p-1"
+                              title="Delete Event"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] uppercase tracking-wider font-semibold text-foreground/50">Event Title</span>
+                              <input
+                                type="text"
+                                value={evt.title}
+                                onChange={(e) => handleUpdateEvent(evt.id, 'title', e.target.value)}
+                                placeholder="e.g. Sangeet Ceremony"
+                                className="w-full bg-white border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-lg px-3 py-1.5 text-xs outline-none text-luxury-dark transition-all"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-[9px] uppercase tracking-wider font-semibold text-foreground/50">Date</span>
+                                <input
+                                  type="text"
+                                  value={evt.date}
+                                  onChange={(e) => handleUpdateEvent(evt.id, 'date', e.target.value)}
+                                  placeholder="e.g. Saturday, 22 Nov"
+                                  className="w-full bg-white border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-lg px-3 py-1.5 text-xs outline-none text-luxury-dark transition-all"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <span className="text-[9px] uppercase tracking-wider font-semibold text-foreground/50">Time</span>
+                                <input
+                                  type="text"
+                                  value={evt.time}
+                                  onChange={(e) => handleUpdateEvent(evt.id, 'time', e.target.value)}
+                                  placeholder="e.g. 7:00 PM onwards"
+                                  className="w-full bg-white border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-lg px-3 py-1.5 text-xs outline-none text-luxury-dark transition-all"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] uppercase tracking-wider font-semibold text-foreground/50">Venue / Location</span>
+                              <input
+                                type="text"
+                                value={evt.location}
+                                onChange={(e) => handleUpdateEvent(evt.id, 'location', e.target.value)}
+                                placeholder="e.g. THE GRAND BALLROOM"
+                                className="w-full bg-white border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-lg px-3 py-1.5 text-xs outline-none text-luxury-dark transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -376,7 +508,7 @@ export default function CustomizePage({ params }: PageProps) {
           {/* Iframe Viewport */}
           <div className="flex-grow flex items-center justify-center overflow-hidden">
             {previewMode === 'mobile' ? (
-              <div className="relative w-[300px] sm:w-[330px] aspect-[9/18.5] bg-luxury-dark rounded-[40px] p-2.5 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/25 scale-[0.9] sm:scale-100 origin-center">
+              <div className="relative w-[300px] sm:w-[330px] aspect-[9/15.3] bg-luxury-dark rounded-[40px] p-2.5 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/25 scale-[0.9] sm:scale-100 origin-center">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-luxury-dark rounded-b-2xl z-30 flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-neutral-900 border border-neutral-800 ml-2" />
                   <div className="w-10 h-0.5 bg-neutral-800 rounded-full ml-3" />
