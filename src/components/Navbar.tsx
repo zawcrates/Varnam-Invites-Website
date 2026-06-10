@@ -93,12 +93,12 @@ export default function Navbar() {
             : 'h-[100px] md:h-[146px] bg-transparent'
         }`}
       >
-        <div className="relative w-[85%] md:w-full max-w-7xl mx-auto flex justify-center items-center h-full">
+        <div className="relative w-full max-w-7xl mx-auto px-5 md:px-12 flex justify-center items-center h-full">
           
           {/* Hamburger Menu Toggle Button (Left aligned, bold 3 lines morphing into X) */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="absolute left-0 md:left-12 z-50 w-8 h-6 flex flex-col justify-center items-center focus:outline-none cursor-pointer"
+            className="absolute left-5 md:left-12 z-50 w-8 h-6 flex flex-col justify-center items-center focus:outline-none cursor-pointer"
             aria-label="Toggle menu"
           >
             <div className="relative w-8 h-5 flex flex-col justify-between">
@@ -135,7 +135,7 @@ export default function Navbar() {
 
           {/* Log In / Profile (Right aligned) */}
           {currentUser ? (
-            <div className="absolute right-0 md:right-12 z-40 flex items-center" ref={dropdownRef}>
+            <div className="absolute right-5 md:right-12 z-40 flex items-center" ref={dropdownRef}>
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 className="focus:outline-none cursor-pointer group"
@@ -186,7 +186,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => setShowLogin(true)}
-              className="absolute right-0 md:right-12 z-40 inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-gold-medium/30 bg-white/20 hover:bg-luxury-dark text-luxury-dark hover:text-gold-light font-sansflex text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
+              className="absolute right-5 md:right-12 z-40 inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-gold-medium/30 bg-white/20 hover:bg-luxury-dark text-luxury-dark hover:text-gold-light font-sansflex text-[10px] sm:text-xs uppercase tracking-widest font-bold transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
             >
               Log In
             </button>
