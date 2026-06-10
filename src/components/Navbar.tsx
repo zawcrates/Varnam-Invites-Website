@@ -98,7 +98,7 @@ export default function Navbar() {
           {/* Hamburger Menu Toggle Button (Left aligned, bold 3 lines morphing into X) */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="absolute left-6 md:left-12 z-50 w-8 h-6 flex flex-col justify-center items-center focus:outline-none cursor-pointer"
+            className="absolute left-3 sm:left-4 md:left-12 z-50 w-8 h-6 flex flex-col justify-center items-center focus:outline-none cursor-pointer"
             aria-label="Toggle menu"
           >
             <div className="relative w-8 h-5 flex flex-col justify-between">
@@ -135,7 +135,7 @@ export default function Navbar() {
 
           {/* Log In / Profile (Right aligned) */}
           {currentUser ? (
-            <div className="absolute right-6 md:right-12 z-40 flex items-center" ref={dropdownRef}>
+            <div className="absolute right-3 sm:right-4 md:right-12 z-40 flex items-center" ref={dropdownRef}>
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 className="focus:outline-none cursor-pointer group"
