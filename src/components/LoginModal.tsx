@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Mail, Phone, Lock, CheckCircle2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -98,7 +99,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     };
   }, [isOpen]);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -108,41 +109,91 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     const generalPhoneRegex = /^\+?[0-9]{1,3}?[6-9]\d{9}$/;
 
     const isValidEmail = emailRegex.test(trimmedCredential);
-    const isValidPhone = phoneRegex.test(trimmedCredential.replace(/\s+/g, '')) || generalPhoneRegex.test(trimmedCredential.replace(/\s+/g, ''));
+    const cleanPhone = trimmedCredential.replace(/\s+/g, '');
+    const isValidPhone = phoneRegex.test(cleanPhone) || generalPhoneRegex.test(cleanPhone);
 
     if (!isValidEmail && !isValidPhone) {
       setError("Please enter a valid email address or 10-digit mobile number.");
       return;
     }
 
-    // Direct login simulation
-    console.log("Sign in with", trimmedCredential, password);
-    
-    let userFullName = "Guest User";
     try {
-      const simulatedUsers = JSON.parse(localStorage.getItem("simulated_users") || "{}");
-      const user = simulatedUsers[trimmedCredential.toLowerCase()];
-      if (user && user.password === password) {
-        userFullName = user.fullName;
-      } else {
-        // Fallback: extract name from email prefix or phone number
-        if (isValidEmail) {
-          const prefix = trimmedCredential.split('@')[0];
-          userFullName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+      let emailToAuth = trimmedCredential;
+
+      // If logging in with a phone number, fetch the corresponding email from the profiles table
+      if (isValidPhone) {
+        let { data: profileData } = await supabase
+          .from("profiles")
+          .select("email")
+          .eq("mobile", cleanPhone)
+          .maybeSingle();
+
+        if (!profileData && cleanPhone.length === 10) {
+          const { data: altProfileData } = await supabase
+            .from("profiles")
+            .select("email")
+            .eq("mobile", "+91" + cleanPhone)
+            .maybeSingle();
+          profileData = altProfileData;
+        }
+
+        if (!profileData && cleanPhone.length > 10) {
+          const last10 = cleanPhone.slice(-10);
+          const { data: suffixProfileData } = await supabase
+            .from("profiles")
+            .select("email")
+            .eq("mobile", last10)
+            .maybeSingle();
+          profileData = suffixProfileData;
+        }
+
+        if (profileData?.email) {
+          emailToAuth = profileData.email;
         } else {
-          userFullName = "User " + trimmedCredential.slice(-4);
+          setError("No account found with this mobile number. Please sign up.");
+          return;
         }
       }
-    } catch (e) {
-      console.error(e);
-    }
 
-    const userData = { name: userFullName, email: trimmedCredential };
-    localStorage.setItem("current_user", JSON.stringify(userData));
-    onLoginSuccess(userData);
+      // Authenticate with Supabase Auth
+      const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
+        email: emailToAuth,
+        password: password,
+      });
+
+      if (authErr) {
+        setError(authErr.message);
+        return;
+      }
+
+      if (authData.user) {
+        // Fetch user profile name
+        const { data: userProfile } = await supabase
+          .from("profiles")
+          .select("name")
+          .eq("email", emailToAuth)
+          .maybeSingle();
+
+        let userDisplayName = "User";
+        if (userProfile?.name) {
+          userDisplayName = userProfile.name;
+        } else if (authData.user.email) {
+          const prefix = authData.user.email.split('@')[0];
+          userDisplayName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+        }
+
+        const userData = { name: userDisplayName, email: emailToAuth };
+        localStorage.setItem("current_user", JSON.stringify(userData));
+        onLoginSuccess(userData);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      const message = err instanceof Error ? err.message : "An unexpected error occurred during login.";
+      setError(message);
+    }
   };
 
-  const handleSignupSubmit = (e: React.FormEvent) => {
+  const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -184,30 +235,49 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       return;
     }
 
-    // Save user detail to simulated DB and set current session in localStorage
-    const userData = { name: fullName.trim(), email: signupEmail.trim() };
     try {
-      const simulatedUsers = JSON.parse(localStorage.getItem("simulated_users") || "{}");
-      simulatedUsers[signupEmail.trim().toLowerCase()] = {
-        fullName: fullName.trim(),
-        phone: signupPhone.trim(),
+      // Create user in Supabase Auth
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: signupEmail.trim(),
         password: signupPassword,
-      };
-      localStorage.setItem("simulated_users", JSON.stringify(simulatedUsers));
-      localStorage.setItem("current_user", JSON.stringify(userData));
-    } catch (e) {
-      console.error(e);
-    }
+      });
 
-    // Simulate signup success
-    setSignupSuccess(true);
-    setTimeout(() => {
-      // Trigger login success immediately
-      onLoginSuccess(userData);
-      // Note: We don't reset the signup success or isSignup state here anymore,
-      // so it doesn't try to flip the 3D card back to login form *while* the modal is fading out.
-      // These are cleaned up in the useEffect when the modal is fully closed.
-    }, 1200);
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      // Insert record into profiles table (saving with country code prefix)
+      const fullPhone = signupCountryCode + cleanPhone;
+      const { error: profileError } = await supabase.from("profiles").insert({
+        name: fullName.trim(),
+        email: signupEmail.trim(),
+        mobile: fullPhone,
+      });
+
+      if (profileError) {
+        setError(profileError.message);
+        return;
+      }
+
+      const userData = {
+        name: fullName.trim(),
+        email: signupEmail.trim(),
+      };
+
+      // Set current session in localStorage
+      localStorage.setItem("current_user", JSON.stringify(userData));
+
+      // Trigger signup success UI
+      setSignupSuccess(true);
+      setTimeout(() => {
+        onLoginSuccess(userData);
+      }, 1200);
+    } catch (err) {
+      console.error("Signup error:", err);
+      const message = err instanceof Error ? err.message : "An unexpected error occurred during signup.";
+      setError(message);
+    }
   };
 
   const toggleView = () => {
