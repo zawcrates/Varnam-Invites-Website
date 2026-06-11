@@ -120,17 +120,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     try {
       let emailToAuth = trimmedCredential;
 
-      // If logging in with a phone number, fetch the corresponding email from the profiles table
+      // If logging in with a phone number, fetch the corresponding email from the Profiles table
       if (isValidPhone) {
         let { data: profileData } = await supabase
-          .from("profiles")
+          .from("Profiles")
           .select("email")
           .eq("mobile", cleanPhone)
           .maybeSingle();
 
         if (!profileData && cleanPhone.length === 10) {
           const { data: altProfileData } = await supabase
-            .from("profiles")
+            .from("Profiles")
             .select("email")
             .eq("mobile", "+91" + cleanPhone)
             .maybeSingle();
@@ -140,7 +140,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         if (!profileData && cleanPhone.length > 10) {
           const last10 = cleanPhone.slice(-10);
           const { data: suffixProfileData } = await supabase
-            .from("profiles")
+            .from("Profiles")
             .select("email")
             .eq("mobile", last10)
             .maybeSingle();
@@ -169,7 +169,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       if (authData.user) {
         // Fetch user profile name
         const { data: userProfile } = await supabase
-          .from("profiles")
+          .from("Profiles")
           .select("name")
           .eq("email", emailToAuth)
           .maybeSingle();
@@ -237,7 +237,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
     try {
       // Create user in Supabase Auth
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail.trim(),
         password: signupPassword,
       });
@@ -247,17 +247,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         return;
       }
 
-      // Insert record into profiles table (saving with country code prefix)
+      // Insert record into Profiles table (saving with country code prefix and UUID id)
       const fullPhone = signupCountryCode + cleanPhone;
-      const { error: profileError } = await supabase.from("profiles").insert({
-        name: fullName.trim(),
-        email: signupEmail.trim(),
-        mobile: fullPhone,
-      });
+      if (authData?.user) {
+        const { error: profileError } = await supabase.from("Profiles").insert({
+          id: authData.user.id,
+          name: fullName.trim(),
+          email: signupEmail.trim(),
+          mobile: fullPhone,
+        });
 
-      if (profileError) {
-        setError(profileError.message);
-        return;
+        if (profileError) {
+          setError(profileError.message);
+          return;
+        }
       }
 
       const userData = {

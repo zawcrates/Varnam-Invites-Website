@@ -42,7 +42,7 @@ export default function Navbar() {
         try {
           // Check if profile exists
           let { data: profile } = await supabase
-            .from("profiles")
+            .from("Profiles")
             .select("name")
             .eq("email", session.user.email)
             .maybeSingle();
@@ -51,8 +51,9 @@ export default function Navbar() {
             // New user signed in via Google (OAuth)
             const oauthName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || "User";
             const { error: insertError } = await supabase
-              .from("profiles")
+              .from("Profiles")
               .insert({
+                id: session.user.id,
                 name: oauthName,
                 email: session.user.email,
                 mobile: "", // Default to empty for Google OAuth signup
