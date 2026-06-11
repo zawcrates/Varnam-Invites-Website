@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginModal from './LoginModal';
+import { supabase } from '@/lib/supabase';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -15,7 +16,12 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
     localStorage.removeItem("current_user");
     setCurrentUser(null);
   };
@@ -31,14 +37,48 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const userStr = localStorage.getItem("current_user");
-    if (userStr) {
-      try {
-        setCurrentUser(JSON.parse(userStr));
-      } catch (e) {
-        console.error(e);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        try {
+          // Check if profile exists
+          let { data: profile } = await supabase
+            .from("profiles")
+            .select("name")
+            .eq("email", session.user.email)
+            .maybeSingle();
+
+          if (!profile && session.user.email) {
+            // New user signed in via Google (OAuth)
+            const oauthName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || "User";
+            const { error: insertError } = await supabase
+              .from("profiles")
+              .insert({
+                name: oauthName,
+                email: session.user.email,
+                mobile: "", // Default to empty for Google OAuth signup
+              });
+
+            if (!insertError) {
+              profile = { name: oauthName };
+            }
+          }
+
+          const userName = profile?.name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || "User";
+          const userData = { name: userName, email: session.user.email || "" };
+          localStorage.setItem("current_user", JSON.stringify(userData));
+          setCurrentUser(userData);
+        } catch (err) {
+          console.error("Error updating session profile:", err);
+        }
+      } else {
+        localStorage.removeItem("current_user");
+        setCurrentUser(null);
       }
-    }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleLogoClick = (e: React.MouseEvent) => {
