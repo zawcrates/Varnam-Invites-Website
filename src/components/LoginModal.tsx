@@ -239,7 +239,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       const fullPhone = signupCountryCode + cleanPhone;
 
       // Create user in Supabase Auth and pass metadata for trigger
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail.trim(),
         password: signupPassword,
         options: {
@@ -255,19 +255,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         return;
       }
 
-      const userData = {
-        name: fullName.trim(),
-        email: signupEmail.trim(),
-      };
+      if (authData?.session) {
+        const userData = {
+          name: fullName.trim(),
+          email: signupEmail.trim(),
+        };
 
-      // Set current session in localStorage
-      localStorage.setItem("current_user", JSON.stringify(userData));
+        // Set current session in localStorage
+        localStorage.setItem("current_user", JSON.stringify(userData));
 
-      // Trigger signup success UI
-      setSignupSuccess(true);
-      setTimeout(() => {
-        onLoginSuccess(userData);
-      }, 1200);
+        // Trigger signup success UI
+        setSignupSuccess(true);
+        setTimeout(() => {
+          onLoginSuccess(userData);
+        }, 1200);
+      } else {
+        // Email confirmation is required in Supabase settings
+        setError("Registration successful! Please check your email to verify your account before logging in.");
+      }
     } catch (err) {
       console.error("Signup error:", err);
       const message = err instanceof Error ? err.message : "An unexpected error occurred during signup.";
