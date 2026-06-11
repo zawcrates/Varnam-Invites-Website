@@ -41,28 +41,11 @@ export default function Navbar() {
       if (session?.user) {
         try {
           // Check if profile exists
-          let { data: profile } = await supabase
+          const { data: profile } = await supabase
             .from("Profiles")
             .select("name")
             .eq("email", session.user.email)
             .maybeSingle();
-
-          if (!profile && session.user.email) {
-            // New user signed in via Google (OAuth)
-            const oauthName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || "User";
-            const { error: insertError } = await supabase
-              .from("Profiles")
-              .insert({
-                id: session.user.id,
-                name: oauthName,
-                email: session.user.email,
-                mobile: "", // Default to empty for Google OAuth signup
-              });
-
-            if (!insertError) {
-              profile = { name: oauthName };
-            }
-          }
 
           const userName = profile?.name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || "User";
           const userData = { name: userName, email: session.user.email || "" };

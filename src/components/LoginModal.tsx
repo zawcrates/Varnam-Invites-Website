@@ -236,31 +236,23 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     }
 
     try {
-      // Create user in Supabase Auth
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      const fullPhone = signupCountryCode + cleanPhone;
+
+      // Create user in Supabase Auth and pass metadata for trigger
+      const { error: signUpError } = await supabase.auth.signUp({
         email: signupEmail.trim(),
         password: signupPassword,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            mobile: fullPhone,
+          }
+        }
       });
 
       if (signUpError) {
         setError(signUpError.message);
         return;
-      }
-
-      // Insert record into Profiles table (saving with country code prefix and UUID id)
-      const fullPhone = signupCountryCode + cleanPhone;
-      if (authData?.user) {
-        const { error: profileError } = await supabase.from("Profiles").insert({
-          id: authData.user.id,
-          name: fullName.trim(),
-          email: signupEmail.trim(),
-          mobile: fullPhone,
-        });
-
-        if (profileError) {
-          setError(profileError.message);
-          return;
-        }
       }
 
       const userData = {
