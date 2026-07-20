@@ -5,25 +5,27 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginModal from './LoginModal';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const { user, profile, signOut } = useAuth();
+
+  const currentUser = user ? { name: profile?.name || user.name, email: user.email } : null;
+
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOut();
     } catch (e) {
       console.error("Logout error:", e);
     }
     localStorage.removeItem("current_user");
-    setCurrentUser(null);
   };
 
   useEffect(() => {
@@ -37,32 +39,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        try {
-          // Check if profile exists
-          const { data: profile } = await supabase
-            .from("Profiles")
-            .select("name")
-            .eq("email", session.user.email)
-            .maybeSingle();
-
-          const userName = profile?.name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || "User";
-          const userData = { name: userName, email: session.user.email || "" };
-          localStorage.setItem("current_user", JSON.stringify(userData));
-          setCurrentUser(userData);
-        } catch (err) {
-          console.error("Error updating session profile:", err);
-        }
-      } else {
-        localStorage.removeItem("current_user");
-        setCurrentUser(null);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('login') === 'true') {
+        setShowLogin(true);
       }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    }
   }, []);
 
   const handleLogoClick = (e: React.MouseEvent) => {
@@ -304,8 +286,7 @@ export default function Navbar() {
       <LoginModal 
         isOpen={showLogin} 
         onClose={() => setShowLogin(false)} 
-        onLoginSuccess={(userData) => {
-          setCurrentUser(userData);
+        onLoginSuccess={() => {
           setShowLogin(false);
         }} 
       />

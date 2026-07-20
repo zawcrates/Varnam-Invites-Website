@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Mail, Phone, Lock, CheckCircle2, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -13,6 +13,8 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+
   // Common states
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
@@ -40,8 +42,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const [signupPhone, setSignupPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [signupSuccess, setSignupSuccess] = useState(false);
   const [signupCountryCode, setSignupCountryCode] = useState("+91");
+  const [signupSuccess, setSignupSuccess] = useState(false);
   const signupInputRef = useRef<HTMLInputElement>(null);
 
   // Password visibility states
@@ -52,7 +54,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   // Focus input when modal opens or flips, and reset on close
   useEffect(() => {
     if (!isOpen) {
-      // Wait for exit animation to finish before resetting tab/state to avoid glitchy flip on exit
       const timer = setTimeout(() => {
         setIsSignup(false);
         setSignupSuccess(false);
@@ -118,71 +119,18 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     }
 
     try {
-      let emailToAuth = trimmedCredential;
-
-      // If logging in with a phone number, fetch the corresponding email from the Profiles table
-      if (isValidPhone) {
-        let { data: profileData } = await supabase
-          .from("Profiles")
-          .select("email")
-          .eq("mobile", cleanPhone)
-          .maybeSingle();
-
-        if (!profileData && cleanPhone.length === 10) {
-          const { data: altProfileData } = await supabase
-            .from("Profiles")
-            .select("email")
-            .eq("mobile", "+91" + cleanPhone)
-            .maybeSingle();
-          profileData = altProfileData;
-        }
-
-        if (!profileData && cleanPhone.length > 10) {
-          const last10 = cleanPhone.slice(-10);
-          const { data: suffixProfileData } = await supabase
-            .from("Profiles")
-            .select("email")
-            .eq("mobile", last10)
-            .maybeSingle();
-          profileData = suffixProfileData;
-        }
-
-        if (profileData?.email) {
-          emailToAuth = profileData.email;
-        } else {
-          setError("No account found with this mobile number. Please sign up.");
-          return;
-        }
-      }
-
-      // Authenticate with Supabase Auth
-      const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
-        email: emailToAuth,
+      const result = await signIn({
+        email: trimmedCredential,
         password: password,
       });
 
-      if (authErr) {
-        setError(authErr.message);
+      if (result.error) {
+        setError(result.error);
         return;
       }
 
-      if (authData.user) {
-        // Fetch user profile name
-        const { data: userProfile } = await supabase
-          .from("Profiles")
-          .select("name")
-          .eq("email", emailToAuth)
-          .maybeSingle();
-
-        let userDisplayName = "User";
-        if (userProfile?.name) {
-          userDisplayName = userProfile.name;
-        } else if (authData.user.email) {
-          const prefix = authData.user.email.split('@')[0];
-          userDisplayName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-        }
-
-        const userData = { name: userDisplayName, email: emailToAuth };
+      if (result.user) {
+        const userData = { name: result.user.name, email: result.user.email };
         localStorage.setItem("current_user", JSON.stringify(userData));
         onLoginSuccess(userData);
       }
@@ -197,7 +145,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     e.preventDefault();
     setError("");
 
-    // Validations
     if (!fullName.trim() || !signupEmail.trim() || !signupPhone.trim() || !signupPassword || !confirmPassword) {
       setError("Please fill in all details.");
       return;
@@ -238,39 +185,32 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     try {
       const fullPhone = signupCountryCode + cleanPhone;
 
-      // Create user in Supabase Auth and pass metadata for trigger
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      const result = await signUp({
+        name: fullName.trim(),
         email: signupEmail.trim(),
         password: signupPassword,
-        options: {
-          data: {
-            full_name: fullName.trim(),
-            mobile: fullPhone,
-          }
-        }
+        confirmPassword,
+        phone: fullPhone,
       });
 
-      if (signUpError) {
-        setError(signUpError.message);
+      if (result.error) {
+        setError(result.error);
         return;
       }
 
-      if (authData?.session) {
+      if (result.session) {
         const userData = {
           name: fullName.trim(),
           email: signupEmail.trim(),
         };
 
-        // Set current session in localStorage
         localStorage.setItem("current_user", JSON.stringify(userData));
 
-        // Trigger signup success UI
         setSignupSuccess(true);
         setTimeout(() => {
           onLoginSuccess(userData);
         }, 1200);
       } else {
-        // Email confirmation is required in Supabase settings
         setError("Registration successful! Please check your email to verify your account before logging in.");
       }
     } catch (err) {
@@ -283,15 +223,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const handleGoogleSignIn = async () => {
     setError("");
     try {
-      const { error: oAuthError } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
-        },
-      });
-
-      if (oAuthError) {
-        setError(oAuthError.message);
+      const result = await signInWithGoogle();
+      if (result && result.error) {
+        setError(result.error);
       }
     } catch (err) {
       console.error("Google sign in error:", err);
@@ -303,7 +237,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const toggleView = () => {
     setError("");
     setIsSignup(!isSignup);
-    // Reset visibility states
     setShowPassword(false);
     setShowSignupPassword(false);
     setShowConfirmPassword(false);

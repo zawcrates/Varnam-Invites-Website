@@ -94,3 +94,62 @@ VALUES (
     ARRAY['Rich golden mandala motifs', 'Traditional Indian palace artwork', 'Sitar instrumental background music', 'Personalized wedding functions timeline', 'One-click WhatsApp RSVP integration'],
     '{"showPreloader": true, "preloaderTime": 0.7, "groomName": "Ranveer Singh", "connector": "Weds", "brideName": "Deepika Padukone", "welcomeTop": "WITH THE BLESSINGS OF ALMIGHTY AND ANCESTORS", "andText": "AND", "inviteText1": "humbly solicit your gracious presence at the wedding ceremony of", "inviteText2": "their beloved children", "month": "DECEMBER", "dateDetails": "WEDNESDAY | 18 | 2026", "time": "6:00 PM onwards", "locationLine1": "THE PALACE PALAZZO", "locationLine2": "JAIPUR ROAD, JAIPUR", "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14234.673891461947!2d75.7872709!3d26.9124336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db61234b5f8ef%3A0x8677c77c07b6c8d7!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin", "storyText": "Two hearts bound by love, celebrating a union of two families. We invite you to bless our union as we take our sacred vows in the royal heritage of Rajasthan.", "whatsappNumber": "9876543210", "audioSrc": "/bg_music.mp3"}'::jsonb
 );
+
+-- 5. Create Profiles Table (Sprint 2)
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    avatar_url TEXT,
+    phone TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable Row Level Security (RLS) for profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Profiles policies
+CREATE POLICY "Allow users to view own profile" 
+ON public.profiles 
+FOR SELECT 
+USING (auth.uid() = id);
+
+CREATE POLICY "Allow users to update own profile" 
+ON public.profiles 
+FOR UPDATE 
+USING (auth.uid() = id);
+
+CREATE POLICY "Allow trigger to insert profiles" 
+ON public.profiles 
+FOR INSERT 
+WITH CHECK (true);
+
+-- Trigger for auto-syncing profiles from auth.users (idempotent)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email, display_name, avatar_url, phone)
+    VALUES (
+        new.id,
+        new.email,
+        COALESCE(new.raw_user_meta_data->>'display_name', new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', 'Guest'),
+        new.raw_user_meta_data->>'avatar_url',
+        COALESCE(new.raw_user_meta_data->>'phone', new.raw_user_meta_data->>'mobile')
+    )
+    ON CONFLICT (id) DO NOTHING;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_new_user();
+
+-- Trigger for profiles updated_at modification time
+CREATE TRIGGER update_profiles_modtime
+    BEFORE UPDATE ON public.profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION update_modified_column();
+

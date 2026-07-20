@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import TemplateRenderer from '@/components/templates/TemplateRenderers';
+import { getTemplateRenderer } from '@/templates';
 import { InviteData } from '@/data/templates';
 
 function InvitationPreviewContent() {
@@ -44,7 +44,18 @@ function InvitationPreviewContent() {
     events: parsedEvents,
   };
 
-  return <TemplateRenderer slug={templateSlug} inviteData={inviteData} />;
+  const Renderer = getTemplateRenderer(templateSlug);
+
+  if (!Renderer) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 text-neutral-400 p-6 text-center">
+        <h2 className="text-xl font-semibold mb-2">Template Not Found</h2>
+        <p className="text-sm">The requested template layout does not exist.</p>
+      </div>
+    );
+  }
+
+  return <Renderer inviteData={inviteData} />;
 }
 
 export default function InvitationPreviewPage() {

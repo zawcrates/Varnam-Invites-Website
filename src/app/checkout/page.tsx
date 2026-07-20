@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, ShoppingBag, ShieldCheck, CheckCircle, CreditCard, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import LoginModal from '@/components/LoginModal';
+import { useAuth } from '@/hooks/useAuth';
 import { TEMPLATES, InviteData } from '@/data/templates';
 
 export default function CheckoutPage() {
@@ -23,6 +25,11 @@ export default function CheckoutPage() {
   const [billingName, setBillingName] = useState('');
   const [billingCountryCode, setBillingCountryCode] = useState('+91');
 
+  // Authentication & Inline Checkout resume flow
+  const { user, profile } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
   // Load customized data on mount
   useEffect(() => {
     const slug = localStorage.getItem('varnam_active_slug');
@@ -36,29 +43,134 @@ export default function CheckoutPage() {
         console.error("Error loading customized data", e);
       }
     }
+  }, []);
 
-    // Auto-populate contact fields if user is logged in
-    const userStr = localStorage.getItem("current_user");
-    if (userStr) {
-      try {
-        const currentUser = JSON.parse(userStr);
-        if (currentUser.name) setBillingName(currentUser.name);
-        if (currentUser.email) setBillingEmail(currentUser.email);
-        
-        // Attempt to prefill phone number from simulated database registry
-        const simulatedUsers = JSON.parse(localStorage.getItem("simulated_users") || "{}");
-        const storedUser = simulatedUsers[currentUser.email.toLowerCase()];
-        if (storedUser && storedUser.phone) {
-          setBillingPhone(storedUser.phone);
+  // Auto-populate contact fields once user is logged in
+  useEffect(() => {
+    if (user) {
+      if (user.name && !billingName) setBillingName(user.name);
+      if (user.email && !billingEmail) setBillingEmail(user.email);
+      if (profile?.phone && !billingPhone) {
+        const phoneVal = profile.phone;
+        if (phoneVal.startsWith('+')) {
+          const codes = ['+91', '+971', '+61', '+65', '+44', '+1'];
+          const matchedCode = codes.find(c => phoneVal.startsWith(c));
+          if (matchedCode) {
+            setBillingCountryCode(matchedCode);
+            setBillingPhone(phoneVal.slice(matchedCode.length));
+          } else {
+            setBillingPhone(phoneVal);
+          }
+        } else {
+          setBillingPhone(phoneVal);
         }
-      } catch (e) {
-        console.error("Error auto-populating billing details", e);
       }
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, profile]);
+
+  // Resume generic pending action after successful authentication
+  useEffect(() => {
+    if (user && pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  }, [user, pendingAction]);
 
   // Find template metadata
   const template = TEMPLATES.find(t => t.slug === templateSlug) || TEMPLATES[0];
+
+  const handleSimulatePayment = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const action = () => {
+      if (!billingEmail || !billingPhone || !billingName) {
+        alert("Please fill in your contact details.");
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^[6-9]\d{9}$/;
+
+      if (!emailRegex.test(billingEmail.trim())) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      const cleanPhone = billingPhone.trim().replace(/\s+/g, '');
+      const internationalPhoneRegex = /^\d{7,14}$/;
+
+      const isValidPhone = billingCountryCode === "+91"
+        ? phoneRegex.test(cleanPhone)
+        : internationalPhoneRegex.test(cleanPhone);
+
+      if (!isValidPhone) {
+        alert(billingCountryCode === "+91"
+          ? "Please enter a valid 10-digit mobile number."
+          : "Please enter a valid phone number (7 to 14 digits).");
+        return;
+      }
+
+      setPaymentStep('simulating');
+      
+      // Step-by-step checkout overlay simulation
+      const statuses = [
+        "Connecting to Razorpay secure servers...",
+        "Validating credit card credentials...",
+        "Authorizing payment with bank gateway...",
+        "Verifying secure transaction signatures...",
+        "Payment authorized successfully! Finalizing order..."
+      ];
+
+      let currentStatusIdx = 0;
+      setSimStatus(statuses[0]);
+
+      const interval = setInterval(() => {
+        currentStatusIdx++;
+        if (currentStatusIdx < statuses.length) {
+          setSimStatus(statuses[currentStatusIdx]);
+        } else {
+          clearInterval(interval);
+          
+          // Save to final database (localStorage simulation)
+          const invitationId = `invite_${Math.random().toString(36).substr(2, 9)}`;
+          const finalInviteRecord = {
+            id: invitationId,
+            templateSlug: templateSlug,
+            inviteData: customData,
+            billingDetails: {
+              name: billingName,
+              email: billingEmail,
+              phone: `${billingCountryCode}${cleanPhone}`
+            },
+            userEmail: billingEmail.trim().toLowerCase(), // Link invite to user email
+            purchaseDate: new Date().toISOString(),
+            isPaid: true
+          };
+
+          // Write to invitations registry
+          const currentInvites = JSON.parse(localStorage.getItem('varnam_published_invitations') || '{}');
+          currentInvites[invitationId] = finalInviteRecord;
+          localStorage.setItem('varnam_published_invitations', JSON.stringify(currentInvites));
+
+          // Move to success
+          setPaymentStep('success');
+          setTimeout(() => {
+            setIsNavigating(true);
+            router.push(`/success?id=${invitationId}`);
+          }, 1500);
+        }
+      }, 1200);
+    };
+
+    if (!user) {
+      setPendingAction(() => action);
+      setShowLogin(true);
+      return;
+    }
+
+    action();
+  };
 
   if (!templateSlug || !customData) {
     return (
@@ -83,87 +195,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
-  const handleSimulatePayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!billingEmail || !billingPhone || !billingName) {
-      alert("Please fill in your contact details.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^[6-9]\d{9}$/;
-
-    if (!emailRegex.test(billingEmail.trim())) {
-      alert("Please enter a valid email address.");
-      return;
-    }
-
-    const cleanPhone = billingPhone.trim().replace(/\s+/g, '');
-    const internationalPhoneRegex = /^\d{7,14}$/;
-
-    const isValidPhone = billingCountryCode === "+91"
-      ? phoneRegex.test(cleanPhone)
-      : internationalPhoneRegex.test(cleanPhone);
-
-    if (!isValidPhone) {
-      alert(billingCountryCode === "+91"
-        ? "Please enter a valid 10-digit mobile number."
-        : "Please enter a valid phone number (7 to 14 digits).");
-      return;
-    }
-
-    setPaymentStep('simulating');
-    
-    // Step-by-step checkout overlay simulation
-    const statuses = [
-      "Connecting to Razorpay secure servers...",
-      "Validating credit card credentials...",
-      "Authorizing payment with bank gateway...",
-      "Verifying secure transaction signatures...",
-      "Payment authorized successfully! Finalizing order..."
-    ];
-
-    let currentStatusIdx = 0;
-    setSimStatus(statuses[0]);
-
-    const interval = setInterval(() => {
-      currentStatusIdx++;
-      if (currentStatusIdx < statuses.length) {
-        setSimStatus(statuses[currentStatusIdx]);
-      } else {
-        clearInterval(interval);
-        
-        // Save to final database (localStorage simulation)
-        const invitationId = `invite_${Math.random().toString(36).substr(2, 9)}`;
-        const finalInviteRecord = {
-          id: invitationId,
-          templateSlug: templateSlug,
-          inviteData: customData,
-          billingDetails: {
-            name: billingName,
-            email: billingEmail,
-            phone: `${billingCountryCode}${cleanPhone}`
-          },
-          userEmail: billingEmail.trim().toLowerCase(), // Link invite to user email
-          purchaseDate: new Date().toISOString(),
-          isPaid: true
-        };
-
-        // Write to invitations registry
-        const currentInvites = JSON.parse(localStorage.getItem('varnam_published_invitations') || '{}');
-        currentInvites[invitationId] = finalInviteRecord;
-        localStorage.setItem('varnam_published_invitations', JSON.stringify(currentInvites));
-
-        // Move to success
-        setPaymentStep('success');
-        setTimeout(() => {
-          setIsNavigating(true);
-          router.push(`/success?id=${invitationId}`);
-        }, 1500);
-      }
-    }, 1200);
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -393,6 +424,18 @@ export default function CheckoutPage() {
             )}
           </div>
         </div>
+      )}
+      {showLogin && (
+        <LoginModal
+          isOpen={showLogin}
+          onClose={() => {
+            setShowLogin(false);
+            setPendingAction(null);
+          }}
+          onLoginSuccess={() => {
+            setShowLogin(false);
+          }}
+        />
       )}
 
       <Footer />

@@ -16,6 +16,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoginModal from '@/components/LoginModal';
+import { useAuth } from '@/hooks/useAuth';
 import { TEMPLATES, InviteData } from '@/data/templates';
 
 interface PublishedInvitation {
@@ -39,48 +40,23 @@ interface SavedDraft {
 }
 
 export default function MyInvitesPage() {
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const { user, profile, loading: authLoading, signOut } = useAuth();
   const [publishedInvites, setPublishedInvites] = useState<PublishedInvitation[]>([]);
   const [drafts, setDrafts] = useState<SavedDraft[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'published' | 'drafts'>('published');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  const currentUser = user ? { name: profile?.name || user.name, email: user.email } : null;
+
   useEffect(() => {
-    // Check if logged in
-    const checkUser = () => {
-      const userStr = localStorage.getItem("current_user");
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          setCurrentUser(user);
-          loadUserInvites(user.email);
-        } catch (e) {
-          console.error(e);
-        }
-      } else {
-        setCurrentUser(null);
-      }
-      setLoading(false);
-    };
-
-    checkUser();
-
-    // Listen for storage events (e.g. login/logout in other tabs or through Navbar state)
-    const handleStorageChange = () => {
-      checkUser();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    // Poll localstorage briefly because Navbar might login without triggering native storage event in the same tab
-    const interval = setInterval(checkUser, 1000);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
+    if (user) {
+      loadUserInvites(user.email);
+    } else {
+      setPublishedInvites([]);
+      setDrafts([]);
+    }
+  }, [user]);
 
   const loadUserInvites = (email: string) => {
     const userEmail = email.toLowerCase();
@@ -133,15 +109,15 @@ export default function MyInvitesPage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     localStorage.removeItem("current_user");
-    setCurrentUser(null);
     setPublishedInvites([]);
     setDrafts([]);
   };
 
   // If loading user state initially
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-[#f7f5f0]">
         <Navbar />
@@ -199,9 +175,7 @@ export default function MyInvitesPage() {
         <LoginModal 
           isOpen={showLoginModal} 
           onClose={() => setShowLoginModal(false)} 
-          onLoginSuccess={(user) => {
-            setCurrentUser(user);
-            loadUserInvites(user.email);
+          onLoginSuccess={() => {
             setShowLoginModal(false);
           }}
         />
