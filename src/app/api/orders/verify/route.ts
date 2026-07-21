@@ -24,22 +24,18 @@ import { ProjectService } from "@/services/ProjectService";
 import { PublishService } from "@/services/PublishService";
 
 // ---------------------------------------------------------------------------
-// Environment validation
-// ---------------------------------------------------------------------------
-
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-
-if (!RAZORPAY_KEY_SECRET) {
-  throw new Error(
-    "[/api/orders/verify] Missing RAZORPAY_KEY_SECRET in environment."
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Route Handler
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
+  if (!RAZORPAY_KEY_SECRET) {
+    throw new Error(
+      "[/api/orders/verify] Missing RAZORPAY_KEY_SECRET in environment."
+    );
+  }
   try {
     const supabase = await createClient();
 

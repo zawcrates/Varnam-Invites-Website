@@ -26,20 +26,24 @@ import { TEMPLATES } from "@/data/templates";
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
-if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-  throw new Error(
-    "[/api/orders/create] Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in environment."
-  );
+// ---------------------------------------------------------------------------
+// Razorpay client (lazy instantiated inside handler to prevent build-time throw)
+// ---------------------------------------------------------------------------
+let razorpayInstance: Razorpay | null = null;
+function getRazorpayClient() {
+  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    throw new Error(
+      "[/api/orders/create] Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in environment."
+    );
+  }
+  if (!razorpayInstance) {
+    razorpayInstance = new Razorpay({
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpayInstance;
 }
-
-// ---------------------------------------------------------------------------
-// Razorpay client (server-only, singleton)
-// ---------------------------------------------------------------------------
-
-const razorpay = new Razorpay({
-  key_id: RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET,
-});
 
 // ---------------------------------------------------------------------------
 // Route Handler
@@ -110,7 +114,8 @@ export async function POST(request: NextRequest) {
     const amountInPaise = template.price * 100;
 
     // 6. Create Razorpay order
-    const razorpayOrder = await razorpay.orders.create({
+    const rzpClient = getRazorpayClient();
+    const razorpayOrder = await rzpClient.orders.create({
       amount: amountInPaise,
       currency: "INR",
       receipt: `varnam_${project_id.slice(0, 8)}`,
