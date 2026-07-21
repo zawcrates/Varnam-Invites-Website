@@ -1,22 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Outfit } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  display: "swap",
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://varnaminvites.com";
 
@@ -42,6 +27,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon-32x32.png",
     apple: "/apple-touch-icon.png",
   },
+  verification: {
+    google: "B2oTvHdI3F2h24o57wlRIK-8lfPJtFeelNZsnExMrAg",
+  },
 };
 
 export const viewport: Viewport = {
@@ -57,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
+    <html lang="en">
       <body className="font-sansflex antialiased bg-background text-foreground">
         <AuthProvider>
           <SmoothScrollProvider>

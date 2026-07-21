@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 @font-face {
@@ -19,7 +19,6 @@
 }
 
 :root {
-
   --background: #F8F7F4;
   --foreground: #111111;
   
@@ -28,6 +27,10 @@
   --gold-medium: #8B7355;
   --gold-dark: #6E5A42;
   --luxury-dark: #111111;
+
+  /* Font variables */
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-outfit: 'Outfit', sans-serif;
 }
 
 @theme {
