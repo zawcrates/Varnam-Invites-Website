@@ -30,8 +30,12 @@ export type {
   // Order domain
   Order,
   OrderStatus,
-  PaymentGateway,
-  PaymentRecord,
+  CreateOrderRequest,
+  CreateOrderResponse,
+  VerifyPaymentRequest,
+  VerifyPaymentResponse,
+  RazorpayOptions,
+  RazorpaySuccessResponse,
 } from "./order.types";
 
 export type {
@@ -39,3 +43,21 @@ export type {
   AuthUser,
   UserProfile,
 } from "./user.types";
+
+export type {
+  // Project domain
+  Project,
+  ProjectStatus,
+  SaveStatus,
+  ConnectionStatus,
+  CreateProjectPayload,
+  UpdateProjectPayload,
+  UseProjectState,
+} from "./project.types";
+
+export type {
+  // Publish domain
+  PublishedInvitation,
+  PublicInvitationPayload,
+} from "./publish.types";
+

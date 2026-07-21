@@ -1,16 +1,68 @@
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2 } from 'lucide-react';
-import { TEMPLATES, InviteData } from '@/data/templates';
+import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2 } from 'lucide-react';
+import { TEMPLATES } from '@/data/templates';
+import { useProject } from '@/hooks/useProject';
+import type { SaveStatus, ConnectionStatus } from '@/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 type TabType = 'couple' | 'event' | 'rsvp-story';
+
+// ---------------------------------------------------------------------------
+// Sync Status Badge
+// ---------------------------------------------------------------------------
+
+function SyncStatusBadge({
+  saveStatus,
+  connectionStatus,
+}: {
+  saveStatus: SaveStatus;
+  connectionStatus: ConnectionStatus;
+}) {
+  if (connectionStatus === 'offline') {
+    return (
+      <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+        <CloudOff className="w-3 h-3" />
+        Offline
+      </span>
+    );
+  }
+  if (saveStatus === 'saving') {
+    return (
+      <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-foreground/40 px-2.5 py-1">
+        <Loader2 className="w-3 h-3 animate-spin" />
+        Saving...
+      </span>
+    );
+  }
+  if (saveStatus === 'saved') {
+    return (
+      <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-emerald-600 px-2.5 py-1">
+        <CheckCircle2 className="w-3 h-3" />
+        Saved
+      </span>
+    );
+  }
+  if (saveStatus === 'error') {
+    return (
+      <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-red-500 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+        <Cloud className="w-3 h-3" />
+        Save Failed
+      </span>
+    );
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Page Component
+// ---------------------------------------------------------------------------
 
 export default function CustomizePage({ params }: PageProps) {
   const router = useRouter();
@@ -29,88 +81,58 @@ export default function CustomizePage({ params }: PageProps) {
   // Mobile active layout tab switcher ('form' or 'preview')
   const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
 
-  // Form State initialized with template defaults
-  const [formData, setFormData] = useState<InviteData>(template.defaultData);
+  // Project & Draft Engine
+  const { project, formData, updateFormData, saveStatus, connectionStatus } = useProject(slug, template);
 
-  // Load state from localStorage on mount if it exists
-  useEffect(() => {
-    const saved = localStorage.getItem(`varnam_custom_${slug}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (!parsed.events && template.defaultData.events) {
-          parsed.events = template.defaultData.events;
-        }
-        setFormData(parsed);
-      } catch (e) {
-        console.error("Error loading cached form data", e);
-      }
-    }
-  }, [slug, template.defaultData.events]);
-
-  // Handle Input Changes
+  // Handle Input Changes – delegates to useProject which handles
+  // localStorage write + debounced Supabase save automatically.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => {
-      const updated = { ...prev, [name]: value };
-      // Cache in localStorage
-      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
-      return updated;
-    });
+    updateFormData({ ...formData, [name]: value });
   };
 
   const handleAddEvent = () => {
-    setFormData(prev => {
-      const currentEvents = prev.events || [];
-      const updated = {
-        ...prev,
-        events: [
-          ...currentEvents,
-          {
-            id: Date.now().toString(),
-            title: `Event ${currentEvents.length + 1}`,
-            date: "",
-            time: "",
-            location: ""
-          }
-        ]
-      };
-      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
-      return updated;
+    const currentEvents = formData.events || [];
+    updateFormData({
+      ...formData,
+      events: [
+        ...currentEvents,
+        {
+          id: Date.now().toString(),
+          title: `Event ${currentEvents.length + 1}`,
+          date: "",
+          time: "",
+          location: ""
+        }
+      ]
     });
   };
 
   const handleUpdateEvent = (id: string, field: string, value: string) => {
-    setFormData(prev => {
-      const currentEvents = prev.events || [];
-      const updated = {
-        ...prev,
-        events: currentEvents.map(evt => evt.id === id ? { ...evt, [field]: value } : evt)
-      };
-      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
-      return updated;
+    const currentEvents = formData.events || [];
+    updateFormData({
+      ...formData,
+      events: currentEvents.map(evt => evt.id === id ? { ...evt, [field]: value } : evt)
     });
   };
 
   const handleDeleteEvent = (id: string) => {
-    setFormData(prev => {
-      const currentEvents = prev.events || [];
-      const updated = {
-        ...prev,
-        events: currentEvents.filter(evt => evt.id !== id)
-      };
-      localStorage.setItem(`varnam_custom_${slug}`, JSON.stringify(updated));
-      return updated;
+    const currentEvents = formData.events || [];
+    updateFormData({
+      ...formData,
+      events: currentEvents.filter(evt => evt.id !== id)
     });
   };
 
   const handleProcedToCheckout = () => {
     setIsNavigating(true);
-    // Save final state in localStorage
+    // Mirror final state into the checkout localStorage keys
     localStorage.setItem(`varnam_active_slug`, slug);
     localStorage.setItem(`varnam_active_custom_data`, JSON.stringify(formData));
-    
-    // Redirect to Checkout page
+    // Pass the project ID so the checkout page can reference it server-side
+    if (project?.id) {
+      localStorage.setItem(`varnam_active_project_id`, project.id);
+    }
     router.push('/checkout');
   };
 
@@ -157,6 +179,9 @@ export default function CustomizePage({ params }: PageProps) {
             </p>
           </div>
         </div>
+
+        {/* Sync Status Badge */}
+        <SyncStatusBadge saveStatus={saveStatus} connectionStatus={connectionStatus} />
 
         {/* Proceed to checkout CTA */}
         <button

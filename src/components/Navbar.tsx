@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import LoginModal from './LoginModal';
 import { useAuth } from '@/hooks/useAuth';
+import dynamic from 'next/dynamic';
+
+const LoginModal = dynamic(() => import('./LoginModal'), { ssr: false });
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -128,9 +131,12 @@ export default function Navbar() {
  
           {/* Brand Logo Link Centered */}
           <Link href="/" onClick={handleLogoClick} className="flex items-center justify-center group z-40">
-            <img 
+            <Image 
               src="/Varnam_svg3.png" 
               alt="Varnam Invites Logo" 
+              width={260}
+              height={120}
+              priority
               className={`w-auto object-contain transition-all duration-500 group-hover:scale-[1.03] h-24 sm:h-44 origin-center ${
                 isScrolled 
                   ? 'scale-[0.7] sm:scale-[0.8] translate-y-[2px] sm:translate-y-[10px]' 

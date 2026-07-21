@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,10 +12,12 @@ export default function Footer() {
         {/* Brand */}
         <div className="md:col-span-2 self-center flex flex-col items-start gap-1">
           <Link href="/" className="relative block h-30 w-100 overflow-hidden group">
-            <img 
+            <Image 
               src="/Varnam_svg1.png" 
               alt="Varnam Invites Logo" 
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-44 w-auto object-contain max-w-none transition-opacity group-hover:opacity-85" 
+              width={260}
+              height={110}
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-auto h-auto object-contain max-w-none transition-opacity group-hover:opacity-85" 
             />
           </Link>
           <p className="font-sansflex text-xs text-gold-light/50 tracking-wide pl-4 max-w-xs leading-relaxed">

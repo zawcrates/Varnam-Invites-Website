@@ -2,22 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ShoppingBag, ShieldCheck, CheckCircle, CreditCard, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, ShoppingBag, ShieldCheck, CheckCircle, CreditCard, Sparkles, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoginModal from '@/components/LoginModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useCheckout } from '@/hooks/useCheckout';
 import { TEMPLATES, InviteData } from '@/data/templates';
 
 export default function CheckoutPage() {
-  const router = useRouter();
-  const [isNavigating, setIsNavigating] = useState(false);
-
   const [templateSlug, setTemplateSlug] = useState<string | null>(null);
   const [customData, setCustomData] = useState<InviteData | null>(null);
-  const [paymentStep, setPaymentStep] = useState<'idle' | 'simulating' | 'success'>('idle');
-  const [simStatus, setSimStatus] = useState('');
+  const [projectId, setProjectId] = useState<string | null>(null);
 
   // Billing Form State
   const [billingEmail, setBillingEmail] = useState('');
@@ -30,11 +27,12 @@ export default function CheckoutPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // Load customized data on mount
+  // Load customized data and project reference on mount
   useEffect(() => {
     const slug = localStorage.getItem('varnam_active_slug');
     const dataString = localStorage.getItem('varnam_active_custom_data');
-    
+    const pid = localStorage.getItem('varnam_active_project_id');
+
     if (slug && dataString) {
       setTemplateSlug(slug);
       try {
@@ -42,6 +40,10 @@ export default function CheckoutPage() {
       } catch (e) {
         console.error("Error loading customized data", e);
       }
+    }
+
+    if (pid) {
+      setProjectId(pid);
     }
   }, []);
 
@@ -80,87 +82,24 @@ export default function CheckoutPage() {
   // Find template metadata
   const template = TEMPLATES.find(t => t.slug === templateSlug) || TEMPLATES[0];
 
-  const handleSimulatePayment = (e: React.FormEvent) => {
+  // Razorpay checkout hook — drives the entire payment state machine
+  const { checkoutState, startPayment, retryPayment } = useCheckout(projectId);
+
+  const isProcessing = checkoutState.step !== 'idle' && checkoutState.step !== 'failed' && checkoutState.step !== 'error';
+
+  const handleSubmitPayment = (e: React.FormEvent) => {
     e.preventDefault();
 
     const action = () => {
-      if (!billingEmail || !billingPhone || !billingName) {
-        alert("Please fill in your contact details.");
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRegex = /^[6-9]\d{9}$/;
-
-      if (!emailRegex.test(billingEmail.trim())) {
-        alert("Please enter a valid email address.");
-        return;
-      }
-
-      const cleanPhone = billingPhone.trim().replace(/\s+/g, '');
-      const internationalPhoneRegex = /^\d{7,14}$/;
-
-      const isValidPhone = billingCountryCode === "+91"
-        ? phoneRegex.test(cleanPhone)
-        : internationalPhoneRegex.test(cleanPhone);
-
-      if (!isValidPhone) {
-        alert(billingCountryCode === "+91"
-          ? "Please enter a valid 10-digit mobile number."
-          : "Please enter a valid phone number (7 to 14 digits).");
-        return;
-      }
-
-      setPaymentStep('simulating');
-      
-      // Step-by-step checkout overlay simulation
-      const statuses = [
-        "Connecting to Razorpay secure servers...",
-        "Validating credit card credentials...",
-        "Authorizing payment with bank gateway...",
-        "Verifying secure transaction signatures...",
-        "Payment authorized successfully! Finalizing order..."
-      ];
-
-      let currentStatusIdx = 0;
-      setSimStatus(statuses[0]);
-
-      const interval = setInterval(() => {
-        currentStatusIdx++;
-        if (currentStatusIdx < statuses.length) {
-          setSimStatus(statuses[currentStatusIdx]);
-        } else {
-          clearInterval(interval);
-          
-          // Save to final database (localStorage simulation)
-          const invitationId = `invite_${Math.random().toString(36).substr(2, 9)}`;
-          const finalInviteRecord = {
-            id: invitationId,
-            templateSlug: templateSlug,
-            inviteData: customData,
-            billingDetails: {
-              name: billingName,
-              email: billingEmail,
-              phone: `${billingCountryCode}${cleanPhone}`
-            },
-            userEmail: billingEmail.trim().toLowerCase(), // Link invite to user email
-            purchaseDate: new Date().toISOString(),
-            isPaid: true
-          };
-
-          // Write to invitations registry
-          const currentInvites = JSON.parse(localStorage.getItem('varnam_published_invitations') || '{}');
-          currentInvites[invitationId] = finalInviteRecord;
-          localStorage.setItem('varnam_published_invitations', JSON.stringify(currentInvites));
-
-          // Move to success
-          setPaymentStep('success');
-          setTimeout(() => {
-            setIsNavigating(true);
-            router.push(`/success?id=${invitationId}`);
-          }, 1500);
-        }
-      }, 1200);
+      startPayment(
+        {
+          name: billingName,
+          email: billingEmail,
+          phone: billingPhone,
+          countryCode: billingCountryCode,
+        },
+        billingName
+      );
     };
 
     if (!user) {
@@ -170,6 +109,10 @@ export default function CheckoutPage() {
     }
 
     action();
+  };
+
+  const handleRetry = () => {
+    retryPayment();
   };
 
   if (!templateSlug || !customData) {
@@ -211,7 +154,7 @@ export default function CheckoutPage() {
         </Link>
 
         <h1 className="font-sansflex text-3xl sm:text-4xl text-luxury-dark tracking-wide font-semibold mb-12">
-          Review & Complete Order
+          Review &amp; Complete Order
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -228,7 +171,7 @@ export default function CheckoutPage() {
               
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm">
                 <div>
-                  <dt className="text-xs uppercase tracking-wider font-semibold text-foreground/45 mb-0.5">Groom & Bride</dt>
+                  <dt className="text-xs uppercase tracking-wider font-semibold text-foreground/45 mb-0.5">Groom &amp; Bride</dt>
                   <dd className="font-sansflex text-base text-luxury-dark">{customData.groomName} {customData.connector} {customData.brideName}</dd>
                 </div>
                 <div>
@@ -254,10 +197,10 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 2: Contact Form */}
-            <form onSubmit={handleSimulatePayment} className="bg-white border border-gold-medium/10 rounded-2xl p-6 md:p-8 luxury-shadow space-y-6 text-left">
+            <form onSubmit={handleSubmitPayment} className="bg-white border border-gold-medium/10 rounded-2xl p-6 md:p-8 luxury-shadow space-y-6 text-left">
               <h3 className="font-sansflex text-lg font-bold text-luxury-dark pb-3 border-b border-gold-medium/5 flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-gold-dark" />
-                <span>Contact & Billing Details</span>
+                <span>Contact &amp; Billing Details</span>
               </h3>
 
               <div className="flex flex-col gap-1.5">
@@ -268,8 +211,11 @@ export default function CheckoutPage() {
                   value={billingName}
                   onChange={(e) => setBillingName(e.target.value)}
                   placeholder="e.g. Virat Kohli"
-                  className="w-full bg-gold-light/20 border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3.5 text-sm outline-none text-luxury-dark transition-all"
+                  className={`w-full bg-gold-light/20 border focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3.5 text-sm outline-none text-luxury-dark transition-all ${checkoutState.formErrors.name ? 'border-red-400' : 'border-gold-medium/20 focus:border-gold-dark'}`}
                 />
+                {checkoutState.formErrors.name && (
+                  <span className="text-xs text-red-500">{checkoutState.formErrors.name}</span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -281,8 +227,11 @@ export default function CheckoutPage() {
                     value={billingEmail}
                     onChange={(e) => setBillingEmail(e.target.value)}
                     placeholder="e.g. info@virat.com"
-                    className="w-full bg-gold-light/20 border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3.5 text-sm outline-none text-luxury-dark transition-all font-mono"
+                    className={`w-full bg-gold-light/20 border focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3.5 text-sm outline-none text-luxury-dark transition-all font-mono ${checkoutState.formErrors.email ? 'border-red-400' : 'border-gold-medium/20 focus:border-gold-dark'}`}
                   />
+                  {checkoutState.formErrors.email && (
+                    <span className="text-xs text-red-500">{checkoutState.formErrors.email}</span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs uppercase tracking-wider font-semibold text-foreground/60">Phone Number</label>
@@ -305,9 +254,12 @@ export default function CheckoutPage() {
                       value={billingPhone}
                       onChange={(e) => setBillingPhone(e.target.value)}
                       placeholder="9876543210"
-                      className="flex-grow bg-gold-light/20 border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3.5 text-sm outline-none text-luxury-dark transition-all font-mono"
+                      className={`flex-grow bg-gold-light/20 border focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3.5 text-sm outline-none text-luxury-dark transition-all font-mono ${checkoutState.formErrors.phone ? 'border-red-400' : 'border-gold-medium/20 focus:border-gold-dark'}`}
                     />
                   </div>
+                  {checkoutState.formErrors.phone && (
+                    <span className="text-xs text-red-500">{checkoutState.formErrors.phone}</span>
+                  )}
                 </div>
               </div>
 
@@ -317,14 +269,41 @@ export default function CheckoutPage() {
                 </p>
               </div>
 
+              {/* System error message */}
+              {(checkoutState.step === 'error' || checkoutState.step === 'failed') && checkoutState.errorMessage && (
+                <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl p-4">
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <div className="flex-grow">
+                    <p className="text-xs text-red-600 leading-relaxed">{checkoutState.errorMessage}</p>
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      className="mt-2 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Retry Payment
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Pay Button */}
               <button
                 type="submit"
-                disabled={isNavigating || paymentStep !== 'idle'}
+                disabled={isProcessing}
                 className="w-full inline-flex items-center justify-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-sm uppercase tracking-widest font-semibold py-4.5 rounded-full transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-luxury-dark/10 disabled:opacity-50"
               >
-                <CreditCard className="w-4 h-4" />
-                <span>Pay ₹{template.price} & Live Publish</span>
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4" />
+                    <span>Pay ₹{template.price} &amp; Continue</span>
+                  </>
+                )}
               </button>
             </form>
 
@@ -335,10 +314,13 @@ export default function CheckoutPage() {
             
             {/* Header image */}
             <div className="h-44 overflow-hidden relative border-b border-gold-medium/10">
-              <img 
+              <Image 
                 src={template.thumbnail} 
                 alt={template.name} 
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 400px"
+                className="object-cover"
+                priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
                 <span className="text-gold-medium text-[10px] font-semibold uppercase tracking-widest mb-0.5">Selected Style</span>
@@ -390,24 +372,24 @@ export default function CheckoutPage() {
         </div>
       </main>
 
-      {/* Razorpay Simulation Modal Overlay */}
-      {paymentStep !== 'idle' && (
+      {/* Payment Processing Overlay — same visual design as simulation, now driven by real state */}
+      {(checkoutState.step === 'creating' || checkoutState.step === 'razorpay' || checkoutState.step === 'verifying' || checkoutState.step === 'success') && (
         <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
           <div className="bg-white border border-gold-medium/20 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden animate-scale-up">
             
             {/* Gold details line top */}
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-gold-dark via-gold-medium to-gold-dark" />
 
-            {paymentStep === 'simulating' ? (
+            {checkoutState.step !== 'success' ? (
               <div className="space-y-6 py-6">
                 <div className="w-16 h-16 border-4 border-gold-medium/20 border-t-gold-dark rounded-full animate-spin mx-auto" />
                 <div>
                   <h4 className="font-sansflex font-bold text-lg text-luxury-dark mb-1">Razorpay Secure Checkout</h4>
-                  <p className="text-[10px] text-foreground/40 uppercase tracking-widest font-semibold font-mono">Test Sandbox Mode</p>
+                  <p className="text-[10px] text-foreground/40 uppercase tracking-widest font-semibold font-mono">256-bit SSL Encrypted</p>
                 </div>
                 <div className="bg-gold-light/35 border border-gold-medium/10 p-4 rounded-xl">
                   <p className="text-xs text-gold-dark font-sansflex leading-relaxed min-h-[40px] flex items-center justify-center font-medium">
-                    {simStatus}
+                    {checkoutState.statusMessage}
                   </p>
                 </div>
               </div>
@@ -425,6 +407,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       )}
+
       {showLogin && (
         <LoginModal
           isOpen={showLogin}

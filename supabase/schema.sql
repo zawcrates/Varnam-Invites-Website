@@ -153,3 +153,142 @@ CREATE TRIGGER update_profiles_modtime
     FOR EACH ROW
     EXECUTE FUNCTION update_modified_column();
 
+-- ==========================================================================
+-- 6. Create Projects Table (Sprint 3)
+-- ==========================================================================
+
+CREATE TABLE IF NOT EXISTS public.projects (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title           TEXT NOT NULL DEFAULT 'My Invitation Draft',
+    template_slug   TEXT NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'draft' CHECK (status = 'draft'),
+    draft_data      JSONB NOT NULL,
+    last_opened_at  TIMESTAMP WITH TIME ZONE,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    deleted_at      TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes for common query patterns
+CREATE INDEX IF NOT EXISTS idx_projects_user_id    ON public.projects(user_id);
+CREATE INDEX IF NOT EXISTS idx_projects_template   ON public.projects(template_slug);
+CREATE INDEX IF NOT EXISTS idx_projects_status     ON public.projects(status);
+CREATE INDEX IF NOT EXISTS idx_projects_deleted_at ON public.projects(deleted_at);
+
+-- Enable Row Level Security
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+-- Users may only see their own non-deleted projects
+CREATE POLICY "Allow users to view own projects"
+ON public.projects
+FOR SELECT
+USING (auth.uid() = user_id AND deleted_at IS NULL);
+
+-- Users may only insert their own projects
+CREATE POLICY "Allow users to insert own projects"
+ON public.projects
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Users may only update their own projects
+CREATE POLICY "Allow users to update own projects"
+ON public.projects
+FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+-- Auto-update updated_at on every row change
+CREATE TRIGGER update_projects_modtime
+    BEFORE UPDATE ON public.projects
+    FOR EACH ROW
+    EXECUTE FUNCTION update_modified_column();
+
+-- ==========================================================================
+-- 7. Create Published Invitations Table (Sprint 5)
+-- ==========================================================================
+
+CREATE TABLE IF NOT EXISTS public.published_invitations (
+    id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id         UUID UNIQUE NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
+    slug               TEXT UNIQUE NOT NULL,
+    is_active          BOOLEAN DEFAULT TRUE NOT NULL,
+    published_version  INTEGER DEFAULT 1 NOT NULL,
+    published_at       TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    created_at         TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at         TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Indexes for fast lookups
+CREATE INDEX IF NOT EXISTS idx_pub_inv_slug       ON public.published_invitations(slug);
+CREATE INDEX IF NOT EXISTS idx_pub_inv_project_id ON public.published_invitations(project_id);
+CREATE INDEX IF NOT EXISTS idx_pub_inv_is_active  ON public.published_invitations(is_active);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE public.published_invitations ENABLE ROW LEVEL SECURITY;
+
+-- Owner Policies (Only the authenticated user who owns the associated project can view or manage its publication)
+CREATE POLICY "Allow owners to view own publications"
+ON public.published_invitations
+FOR SELECT
+USING (
+    EXISTS (
+        SELECT 1 FROM public.projects p
+        WHERE p.id = project_id AND p.user_id = auth.uid()
+    )
+);
+
+CREATE POLICY "Allow owners to insert own publications"
+ON public.published_invitations
+FOR INSERT
+WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM public.projects p
+        WHERE p.id = project_id AND p.user_id = auth.uid() AND p.status = 'paid'
+    )
+);
+
+CREATE POLICY "Allow owners to update own publications"
+ON public.published_invitations
+FOR UPDATE
+USING (
+    EXISTS (
+        SELECT 1 FROM public.projects p
+        WHERE p.id = project_id AND p.user_id = auth.uid()
+    )
+)
+WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM public.projects p
+        WHERE p.id = project_id AND p.user_id = auth.uid()
+    )
+);
+
+-- Secure RPC function (SECURITY DEFINER)
+-- Bypasses table-level RLS to fetch only the necessary rendering payload for public routes.
+CREATE OR REPLACE FUNCTION public.get_public_invitation(p_slug TEXT)
+RETURNS TABLE (
+    template_slug TEXT,
+    draft_data JSONB
+)
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT p.template_slug, p.draft_data
+    FROM public.published_invitations pi
+    JOIN public.projects p ON pi.project_id = p.id
+    WHERE pi.slug = p_slug 
+      AND pi.is_active = TRUE 
+      AND p.deleted_at IS NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to update updated_at on published_invitations row changes
+CREATE TRIGGER update_published_invitations_modtime
+    BEFORE UPDATE ON public.published_invitations
+    FOR EACH ROW
+    EXECUTE FUNCTION update_modified_column();
+

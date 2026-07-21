@@ -7,36 +7,37 @@ import confetti from 'canvas-confetti';
 import { Check, Clipboard, ExternalLink, Home } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { OrderService } from '@/services';
+import { TEMPLATES } from '@/data/templates';
+import type { Order } from '@/types';
+import { formatOrderAmount } from '@/features/orders';
+import { usePublish } from '@/hooks/usePublish';
 
 function SuccessPageContent() {
   const searchParams = useSearchParams();
-  const invitationId = searchParams.get('id') || '';
+  const orderId = searchParams.get('orderId') || '';
 
   const [copied, setCopied] = useState(false);
   const [invitationLink, setInvitationLink] = useState('');
-  interface OrderDetails {
-    id: string;
-    templateSlug: string;
-    billingDetails: {
-      name: string;
-      email: string;
-      phone: string;
-    };
-  }
+  const [orderDetails, setOrderDetails] = useState<Order | null>(null);
 
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const { publicUrl } = usePublish(orderDetails?.project_id || null);
 
   useEffect(() => {
-    // Determine site host on client mount
-    if (typeof window !== 'undefined') {
-      const link = `${window.location.origin}/invitation/${invitationId}`;
-      setInvitationLink(link);
+    if (publicUrl) {
+      setInvitationLink(publicUrl);
+    } else if (typeof window !== 'undefined' && orderDetails) {
+      // Fallback while loading slug or if not resolved yet
+      setInvitationLink(`${window.location.origin}/invite/loading`);
+    }
+  }, [publicUrl, orderDetails]);
 
-      // Load published info from localStorage
-      const published = JSON.parse(localStorage.getItem('varnam_published_invitations') || '{}');
-      if (published[invitationId]) {
-        setOrderDetails(published[invitationId]);
-      }
+  useEffect(() => {
+    // Load order details from Supabase
+    if (orderId) {
+      OrderService.getOrder(orderId)
+        .then((order) => { if (order) setOrderDetails(order); })
+        .catch((err) => console.error('Failed to load order:', err));
     }
 
     // Fire confetti burst!
@@ -65,7 +66,7 @@ function SuccessPageContent() {
     };
     
     frame();
-  }, [invitationId]);
+  }, [orderId]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(invitationLink);
@@ -128,27 +129,47 @@ function SuccessPageContent() {
           </div>
         </div>
 
-        {/* Order Details Accordion recap */}
-        {orderDetails && (
-          <div className="border-t border-gold-medium/10 pt-8 mt-8 text-left max-w-lg mx-auto">
-            <h4 className="font-sansflex text-sm font-bold text-luxury-dark mb-4">
-              Order Details
-            </h4>
-            <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs font-sansflex">
-              <span className="text-foreground/45">Invitation ID:</span>
-              <span className="font-mono text-right font-medium text-luxury-dark">{orderDetails.id}</span>
+        {/* Order Details recap */}
+        {orderDetails && (() => {
+          const template = TEMPLATES.find(t => t.slug === orderDetails.template_slug);
+          return (
+            <div className="border-t border-gold-medium/10 pt-8 mt-8 text-left max-w-lg mx-auto">
+              <h4 className="font-sansflex text-sm font-bold text-luxury-dark mb-4">
+                Order Details
+              </h4>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs font-sansflex">
+                <span className="text-foreground/45">Order ID:</span>
+                <span className="font-mono text-right font-medium text-luxury-dark truncate">{orderDetails.id.slice(0, 8)}…</span>
 
-              <span className="text-foreground/45">Billed To:</span>
-              <span className="text-right font-medium text-luxury-dark">{orderDetails.billingDetails.name}</span>
+                {orderDetails.razorpay_payment_id && (
+                  <>
+                    <span className="text-foreground/45">Payment ID:</span>
+                    <span className="font-mono text-right font-medium text-luxury-dark">{orderDetails.razorpay_payment_id.slice(-8)}</span>
+                  </>
+                )}
 
-              <span className="text-foreground/45">Selected Template:</span>
-              <span className="text-right font-medium text-luxury-dark capitalize">{orderDetails.templateSlug.replace('-', ' ')}</span>
+                {template && (
+                  <>
+                    <span className="text-foreground/45">Selected Template:</span>
+                    <span className="text-right font-medium text-luxury-dark">{template.name}</span>
+                  </>
+                )}
 
-              <span className="text-foreground/45">Amount Paid:</span>
-              <span className="text-right font-bold text-gold-dark">₹{orderDetails.templateSlug === 'vintage-parchment' ? '999' : '1299'}</span>
+                <span className="text-foreground/45">Amount Paid:</span>
+                <span className="text-right font-bold text-gold-dark">{formatOrderAmount(orderDetails.amount)}</span>
+
+                {orderDetails.paid_at && (
+                  <>
+                    <span className="text-foreground/45">Paid At:</span>
+                    <span className="text-right font-medium text-luxury-dark">
+                      {new Date(orderDetails.paid_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="flex justify-center gap-4 border-t border-gold-medium/10 pt-8 mt-10 max-w-lg mx-auto">
           <Link

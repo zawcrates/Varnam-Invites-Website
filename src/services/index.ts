@@ -14,3 +14,7 @@
 
 export { TemplateService } from "./TemplateService";
 export { AuthService } from "./AuthService";
+export { ProjectService } from "./ProjectService";
+export { OrderService } from "./OrderService";
+export { PublishService } from "./PublishService";
+

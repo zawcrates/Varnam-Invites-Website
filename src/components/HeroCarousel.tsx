@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
 import { TEMPLATES } from '@/data/templates';
 
 export default function HeroCarousel() {
@@ -117,10 +118,13 @@ export default function HeroCarousel() {
               >
                 {/* Image and Overlays */}
                 <div className="relative w-full h-full">
-                  <img
+                  <Image
                     src={template.thumbnail}
                     alt={template.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 400px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority
                     draggable={false}
                   />
                   {isActive && (

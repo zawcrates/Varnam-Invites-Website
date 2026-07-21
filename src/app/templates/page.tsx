@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { SlidersHorizontal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -104,10 +105,13 @@ export default function TemplatesPage() {
               >
                 {/* Thumbnail Container */}
                 <div className="relative aspect-[3/4] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
-                  <img 
+                  <Image 
                     src={template.thumbnail} 
                     alt={template.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority={template.slug === 'vintage-parchment'}
                   />
                   <div className="absolute top-4 right-4 bg-luxury-dark/80 text-gold-medium text-[10px] font-sansflex uppercase tracking-widest font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-gold-medium/20">
                     {template.category}

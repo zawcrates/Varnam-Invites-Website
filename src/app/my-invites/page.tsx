@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   FolderHeart, 
   ExternalLink, 
@@ -269,10 +270,12 @@ export default function MyInvitesPage() {
                     <div>
                       {/* Image Preview Thumbnail */}
                       <div className="h-44 overflow-hidden relative">
-                        <img 
+                        <Image 
                           src={template.thumbnail} 
                           alt={template.name} 
-                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          className="object-cover group-hover:scale-102 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-5">
                           <span className="text-gold-medium text-[9px] font-bold uppercase tracking-widest mb-0.5">Style</span>
@@ -363,10 +366,12 @@ export default function MyInvitesPage() {
                     <div>
                       {/* Image Preview Thumbnail */}
                       <div className="h-44 overflow-hidden relative">
-                        <img 
+                        <Image 
                           src={draft.template.thumbnail} 
                           alt={draft.template.name} 
-                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          className="object-cover group-hover:scale-102 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-5">
                           <span className="text-gold-medium text-[9px] font-bold uppercase tracking-widest mb-0.5">Style Draft</span>
