@@ -2,6 +2,7 @@
 
 import React, { useState, use } from 'react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { ArrowLeft, Monitor, Smartphone, ExternalLink, Sliders } from 'lucide-react';
 import { TEMPLATES } from '@/data/templates';
 
@@ -13,7 +14,10 @@ export default function TemplateDetailsPage({ params }: PageProps) {
   const { slug } = use(params);
   
   // Find current template
-  const template = TEMPLATES.find(t => t.slug === slug) || TEMPLATES[0];
+  const template = TEMPLATES.find(t => t.slug === slug);
+  if (!template) {
+    notFound();
+  }
   
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('mobile');
 

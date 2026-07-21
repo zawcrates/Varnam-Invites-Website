@@ -2,7 +2,7 @@
 
 import React, { useState, use } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, notFound } from 'next/navigation';
 import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { TEMPLATES } from '@/data/templates';
 import { useProject } from '@/hooks/useProject';
@@ -70,7 +70,10 @@ export default function CustomizePage({ params }: PageProps) {
   const [isNavigating, setIsNavigating] = useState(false);
 
   // Find template
-  const template = TEMPLATES.find(t => t.slug === slug) || TEMPLATES[0];
+  const template = TEMPLATES.find(t => t.slug === slug);
+  if (!template) {
+    notFound();
+  }
 
   // Active form section tab
   const [activeTab, setActiveTab] = useState<TabType>('couple');

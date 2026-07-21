@@ -148,12 +148,10 @@ function SuccessPageContent() {
                   </>
                 )}
 
-                {template && (
-                  <>
-                    <span className="text-foreground/45">Selected Template:</span>
-                    <span className="text-right font-medium text-luxury-dark">{template.name}</span>
-                  </>
-                )}
+                <span className="text-foreground/45">Selected Template:</span>
+                <span className="text-right font-medium text-luxury-dark">
+                  {template ? template.name : orderDetails.template_slug}
+                </span>
 
                 <span className="text-foreground/45">Amount Paid:</span>
                 <span className="text-right font-bold text-gold-dark">{formatOrderAmount(orderDetails.amount)}</span>

@@ -147,6 +147,13 @@ export default function TemplatesPage() {
               </motion.div>
             ))}
           </div>
+        ) : TEMPLATES.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-gold-medium/10 rounded-2xl p-8 max-w-lg mx-auto select-none">
+            <h3 className="font-sansflex text-lg font-semibold text-luxury-dark mb-2">Production Catalog Coming Soon</h3>
+            <p className="text-sm text-foreground/60 leading-relaxed font-sansflex">
+              We are currently preparing our new premium collection of digital wedding invitation templates. Please check back shortly to explore our brand new catalog.
+            </p>
+          </div>
         ) : (
           <div className="text-center py-20 bg-white border border-gold-medium/10 rounded-2xl p-8 max-w-lg mx-auto">
             <SlidersHorizontal className="w-12 h-12 text-gold-medium/40 mx-auto mb-4" />

@@ -20,15 +20,30 @@ export default function HeroCarousel() {
   }, []);
 
   const handleNext = useCallback(() => {
+    if (TEMPLATES.length === 0) return;
     setActiveIndex((prev) => (prev + 1) % TEMPLATES.length);
   }, []);
+
   // Auto scroll every 6 seconds
   useEffect(() => {
+    if (TEMPLATES.length === 0) return;
     const timer = setInterval(() => {
       handleNext();
     }, 6000);
     return () => clearInterval(timer);
   }, [handleNext]);
+
+  if (TEMPLATES.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[320px] w-full max-w-[400px] mx-auto text-center border border-dashed border-gold-medium/30 rounded-[32px] bg-gold-light/10 p-8 select-none">
+        <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3">Exclusive Launch</span>
+        <h3 className="text-xl font-sansflex font-medium text-luxury-dark tracking-wide">New Catalog Coming Soon</h3>
+        <p className="text-xs text-foreground/50 max-w-[260px] mt-2.5 leading-relaxed font-sansflex">
+          We are upgrading our template collection with brand new premium designs. Stay tuned for our upcoming launch!
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full max-w-[1000px] mx-auto flex flex-col items-center">

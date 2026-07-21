@@ -127,69 +127,80 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-          {TEMPLATES.filter(
-            (t) => selectedCategory === 'all' || t.category === selectedCategory
-          ).slice(0, 6).map((template) => (
-            <motion.div
-              key={template.id}
-              layout
-              whileHover={{ y: -6 }}
-              className="bg-gold-light/40 rounded-2xl border border-gold-medium/10 overflow-hidden luxury-shadow hover:shadow-2xl hover:shadow-gold-medium/15 transition-all duration-300 flex flex-col h-full group"
-            >
-              {/* Thumbnail Container */}
-              <div className="relative aspect-[3/4] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
-                <Image 
-                  src={template.thumbnail} 
-                  alt={template.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  priority={template.slug === 'vintage-parchment'}
-                />
-                <div className="absolute top-4 right-4 bg-luxury-dark/80 text-gold-medium text-[10px] font-sans uppercase tracking-widest font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-gold-medium/20">
-                  {template.category}
-                </div>
-              </div>
-
-              {/* Card Details */}
-              <div className="p-6 flex flex-col flex-grow text-left">
-                <h3 className="font-sansflex text-xl text-luxury-dark mb-2 tracking-wide font-semibold">
-                  {template.name}
-                </h3>
-                <p className="text-xs sm:text-sm text-foreground/60 leading-relaxed font-sansflex mb-4 line-clamp-2">
-                  {template.description}
-                </p>
-                <div className="flex justify-between items-center border-t border-gold-medium/10 pt-4 mt-auto">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-foreground/40 font-sansflex uppercase tracking-wider">price</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-sansflex font-bold text-lg text-luxury-dark">₹{template.price}</span>
-                      <span className="font-sansflex text-xs text-foreground/40 line-through">₹{template.originalPrice}</span>
+        {TEMPLATES.length > 0 ? (
+          <>
+            <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+              {TEMPLATES.filter(
+                (t) => selectedCategory === 'all' || t.category === selectedCategory
+              ).slice(0, 6).map((template) => (
+                <motion.div
+                  key={template.id}
+                  layout
+                  whileHover={{ y: -6 }}
+                  className="bg-gold-light/40 rounded-2xl border border-gold-medium/10 overflow-hidden luxury-shadow hover:shadow-2xl hover:shadow-gold-medium/15 transition-all duration-300 flex flex-col h-full group"
+                >
+                  {/* Thumbnail Container */}
+                  <div className="relative aspect-[3/4] overflow-hidden bg-luxury-cream border-b border-gold-medium/10">
+                    <Image 
+                      src={template.thumbnail} 
+                      alt={template.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      priority={template.slug === 'vintage-parchment'}
+                    />
+                    <div className="absolute top-4 right-4 bg-luxury-dark/80 text-gold-medium text-[10px] font-sans uppercase tracking-widest font-bold px-3 py-1.5 rounded-full backdrop-blur-sm border border-gold-medium/20">
+                      {template.category}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/templates/${template.slug}`}
-                      className="text-xs uppercase tracking-wider font-semibold bg-luxury-dark hover:bg-gold-dark text-white px-4 py-2.5 rounded-full transition-colors font-sansflex border border-gold-medium/20"
-                    >
-                      Preview
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
 
-        <div className="flex justify-center mt-12">
-          <Link
-            href="/templates"
-            className="inline-flex items-center justify-center bg-luxury-dark hover:bg-gold-dark text-white hover:text-gold-light font-sansflex text-xs uppercase tracking-widest font-bold w-[200px] h-[48px] rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-luxury-dark/10 border border-gold-medium/20"
-          >
-            Load More
-          </Link>
-        </div>
+                  {/* Card Details */}
+                  <div className="p-6 flex flex-col flex-grow text-left">
+                    <h3 className="font-sansflex text-xl text-luxury-dark mb-2 tracking-wide font-semibold">
+                      {template.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-foreground/60 leading-relaxed font-sansflex mb-4 line-clamp-2">
+                      {template.description}
+                    </p>
+                    <div className="flex justify-between items-center border-t border-gold-medium/10 pt-4 mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-foreground/40 font-sansflex uppercase tracking-wider">price</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-sansflex font-bold text-lg text-luxury-dark">₹{template.price}</span>
+                          <span className="font-sansflex text-xs text-foreground/40 line-through">₹{template.originalPrice}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/templates/${template.slug}`}
+                          className="text-xs uppercase tracking-wider font-semibold bg-luxury-dark hover:bg-gold-dark text-white px-4 py-2.5 rounded-full transition-colors font-sansflex border border-gold-medium/20"
+                        >
+                          Preview
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-12">
+              <Link
+                href="/templates"
+                className="inline-flex items-center justify-center bg-luxury-dark hover:bg-gold-dark text-white hover:text-gold-light font-sansflex text-xs uppercase tracking-widest font-bold w-[200px] h-[48px] rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-luxury-dark/10 border border-gold-medium/20"
+              >
+                Load More
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-16 bg-gold-light/10 border border-gold-medium/10 rounded-2xl p-8 max-w-md mx-auto select-none">
+            <h3 className="font-sansflex text-lg font-semibold text-luxury-dark mb-2">Exquisite Designs Coming Soon</h3>
+            <p className="text-sm text-foreground/50 leading-relaxed font-sansflex">
+              We are currently preparing our new premium collection of wedding invitation websites. Please check back shortly to explore our brand new templates.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* How It Works Section */}

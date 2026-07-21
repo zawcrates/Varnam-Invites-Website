@@ -38,7 +38,7 @@
 
 "use client";
 
-import React, { ComponentType } from "react";
+import { ComponentType } from "react";
 import type { InviteData } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -53,11 +53,7 @@ export interface TemplateRendererProps {
 // ---------------------------------------------------------------------------
 // Template imports
 // ---------------------------------------------------------------------------
-// As templates are migrated to src/templates/, update the import paths below.
-// The registry key stays the same — only the import path changes.
-
-import VintageParchmentTemplate from "./vintage-parchment/VintageParchmentTemplate";
-import RoyalHeritageTemplate from "./royal-heritage/RoyalHeritageTemplate";
+// No templates registered (empty catalog).
 
 // ---------------------------------------------------------------------------
 // Registry
@@ -71,10 +67,7 @@ import RoyalHeritageTemplate from "./royal-heritage/RoyalHeritageTemplate";
  */
 export const TemplateRegistry: Readonly<
   Record<string, ComponentType<TemplateRendererProps>>
-> = {
-  "vintage-parchment": VintageParchmentTemplate,
-  "royal-heritage": RoyalHeritageTemplate,
-} as const;
+> = {} as const;
 
 // ---------------------------------------------------------------------------
 // Registry lookup helper
