@@ -96,7 +96,7 @@ export default function Navbar() {
   return (
     <>
       <nav 
-        className={`fixed top-0 inset-x-0 mx-auto w-full max-w-7xl z-50 flex items-center transition-all duration-500 ${
+        className={`fixed top-0 inset-x-0 w-full z-50 flex items-center transition-all duration-500 ${
           isScrolled 
             ? 'h-[70px] md:h-[90px] bg-white/70 backdrop-blur-md border-b border-gold-medium/10 shadow-sm' 
             : 'h-[100px] md:h-[146px] bg-transparent'
