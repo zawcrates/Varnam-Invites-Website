@@ -571,7 +571,7 @@ export default function CustomizePage({ params }: PageProps) {
       </div>
 
       {/* Mobile Floating Tab Switcher */}
-      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-gold-medium/20 shadow-xl rounded-full p-1 flex gap-1.5 z-50">
+      <div className="lg:hidden fixed bottom-6 inset-x-0 mx-auto w-fit bg-white/90 backdrop-blur-md border border-gold-medium/20 shadow-xl rounded-full p-1 flex gap-1.5 z-50">
         <button
           onClick={() => setMobileView('form')}
           className={`px-4.5 py-2.5 rounded-full text-xs font-sansflex uppercase tracking-wider font-semibold transition-all ${
