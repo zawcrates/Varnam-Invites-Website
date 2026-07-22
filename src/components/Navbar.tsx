@@ -130,14 +130,15 @@ export default function Navbar() {
           </button>
  
           {/* Brand Logo Link Centered */}
-          <Link href="/" onClick={handleLogoClick} className="flex items-center justify-center group z-40 max-w-[45%] sm:max-w-none">
+          {/* Mobile: fixed h-12 crop window + overflow-hidden zooms logo without growing navbar */}
+          <Link href="/" onClick={handleLogoClick} className="flex items-center justify-center group z-40 max-w-[45%] sm:max-w-none overflow-hidden h-12 sm:h-auto sm:overflow-visible">
             <Image 
               src="/Varnam_svg3.png" 
               alt="Varnam Invites Logo" 
               width={260}
               height={120}
               priority
-              className={`w-auto object-contain transition-all duration-500 group-hover:scale-[1.03] h-12 sm:h-24 md:h-36 lg:h-44 origin-center ${
+              className={`w-auto object-contain transition-all duration-500 group-hover:scale-[1.03] h-20 sm:h-24 md:h-36 lg:h-44 origin-center ${
                 isScrolled 
                   ? 'scale-[0.8] translate-y-[2px] sm:translate-y-[10px]' 
                   : 'scale-100 translate-y-[4px] sm:translate-y-[15px]'
