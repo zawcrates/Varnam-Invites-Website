@@ -41,64 +41,64 @@ export default function HeroCarousel() {
     setActiveIndex((prev) => (prev + 1) % templates.length);
   }, [templates.length]);
 
-  // Auto scroll every 6 seconds
+  // Auto scroll every 5 seconds
   useEffect(() => {
     if (templates.length === 0) return;
     const timer = setInterval(() => {
       handleNext();
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
   }, [handleNext, templates.length]);
 
   if (templates.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[320px] w-full max-w-[400px] mx-auto text-center border border-dashed border-gold-medium/30 rounded-[32px] bg-gold-light/10 p-8 select-none">
-        <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3">Exclusive Launch</span>
-        <h3 className="text-xl font-sansflex font-medium text-luxury-dark tracking-wide">New Catalog Coming Soon</h3>
-        <p className="text-xs text-foreground/50 max-w-[260px] mt-2.5 leading-relaxed font-sansflex">
-          We are upgrading our template collection with brand new premium designs. Stay tuned for our upcoming launch!
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div className="relative w-full max-w-[1000px] mx-auto flex flex-col items-center">
       {/* Carousel Main Container */}
-      <div className="relative w-full h-[400px] flex items-center justify-center overflow-visible">
+      <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[430px] flex items-center justify-center overflow-visible">
         
         {/* Cards Container */}
         <div className="relative w-full h-full flex items-center justify-center overflow-visible">
           {templates.map((template, index) => {
-            // Calculate relative offset of this card from active index
             let offset = index - activeIndex;
 
-            // Handle loop wrap-around calculations
-            const half = Math.floor(templates.length / 2);
-            while (offset > half) offset -= templates.length;
-            while (offset <= -half) offset += templates.length;
+            if (templates.length === 2) {
+              // 2-template back and forth sliding logic:
+              // activeIndex 0 -> template 0 is active (center, offset 0), template 1 is on right (offset +1)
+              // activeIndex 1 -> template 1 is active (center, offset 0), template 0 is on left (offset -1)
+              if (activeIndex === 1 && index === 0) {
+                offset = -1;
+              } else if (activeIndex === 0 && index === 1) {
+                offset = 1;
+              }
+            } else if (templates.length > 2) {
+              const half = Math.floor(templates.length / 2);
+              while (offset > half) offset -= templates.length;
+              while (offset <= -half) offset += templates.length;
+            }
 
             const isActive = offset === 0;
             const isPrev = offset === -1;
             const isNext = offset === 1;
 
-            // Define scale and opacity based on active status
-            let xTranslation = 0;
-            let scale = 0.8;
-            let opacity = 0;
-            let zIndex = 10;
-            
             const isMobile = windowWidth < 640;
             const isTablet = windowWidth >= 640 && windowWidth < 1024;
 
-            // Card size variables
-            const activeWidth = isMobile ? 240 : isTablet ? 280 : 257;
-            const activeHeight = isMobile ? 310 : isTablet ? 350 : 457;
+            // Strict 3:4 Aspect Ratio dimensions (width x height)
+            const activeWidth = isMobile ? 225 : isTablet ? 270 : 300;
+            const activeHeight = isMobile ? 300 : isTablet ? 360 : 400; // 300x400 = 3:4 ratio
 
-            const sideWidth = isMobile ? 180 : isTablet ? 220 : 200;
-            const sideHeight = isMobile ? 240 : isTablet ? 280 : 355;
+            const sideWidth = isMobile ? 180 : isTablet ? 216 : 240;
+            const sideHeight = isMobile ? 240 : isTablet ? 288 : 320; // 240x320 = 3:4 ratio
 
-            const offsetDistance = isMobile ? 120 : isTablet ? 190 : 200;
+            const offsetDistance = isMobile ? 130 : isTablet ? 180 : 210;
+
+            let xTranslation = 0;
+            let scale = 0.88;
+            let opacity = 0;
+            let zIndex = 10;
 
             if (isActive) {
               xTranslation = 0;
@@ -107,16 +107,15 @@ export default function HeroCarousel() {
               zIndex = 30;
             } else if (isPrev) {
               xTranslation = -offsetDistance;
-              scale = 0.92;
-              opacity = isMobile ? 0.25 : 0.65;
+              scale = 0.88;
+              opacity = isMobile ? 0.4 : 0.75;
               zIndex = 20;
             } else if (isNext) {
               xTranslation = offsetDistance;
-              scale = 0.92;
-              opacity = isMobile ? 0.25 : 0.65;
+              scale = 0.88;
+              opacity = isMobile ? 0.4 : 0.75;
               zIndex = 20;
             } else {
-              // Position cards that are hidden further away
               xTranslation = offset < 0 ? -offsetDistance - 40 : offsetDistance + 40;
               scale = 0.7;
               opacity = 0;
@@ -142,14 +141,14 @@ export default function HeroCarousel() {
                 onClick={() => {
                   if (isActive) {
                     router.push(`/templates/${template.slug}`);
-                  } else if (isPrev || isNext) {
+                  } else {
                     setActiveIndex(index);
                   }
                 }}
-                className={`absolute bg-luxury-cream shadow-[0_20px_45px_rgba(18,18,18,0.15)] rounded-[32px] overflow-hidden select-none border border-gold-medium/10 cursor-pointer group`}
+                className="absolute bg-luxury-cream shadow-[0_20px_45px_rgba(18,18,18,0.15)] rounded-[24px] sm:rounded-[32px] overflow-hidden select-none border border-gold-medium/10 cursor-pointer group"
               >
-                {/* Image and Overlays */}
-                <div className="relative w-full h-full">
+                {/* 3:4 Aspect Ratio Image Container */}
+                <div className="relative w-full h-full aspect-[3/4]">
                   <Image
                     src={template.thumbnail}
                     alt={template.name}
@@ -160,9 +159,9 @@ export default function HeroCarousel() {
                     draggable={false}
                   />
                   {isActive && (
-                    <div className="absolute top-5 right-5 z-40">
-                      <div className="flex items-center justify-center w-11 h-11 rounded-full bg-white/40 hover:bg-white/60 border border-white/40 text-black shadow-lg backdrop-blur-md hover:scale-110 active:scale-95 transition-all duration-300">
-                        <ArrowUpRight className="w-5 h-5 text-black" strokeWidth={3} />
+                    <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-40">
+                      <div className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/40 hover:bg-white/60 border border-white/40 text-black shadow-lg backdrop-blur-md hover:scale-110 active:scale-95 transition-all duration-300">
+                        <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-black" strokeWidth={3} />
                       </div>
                     </div>
                   )}
@@ -174,7 +173,7 @@ export default function HeroCarousel() {
       </div>
 
       {/* Bullet / Dot Indicators */}
-      <div className="flex items-center gap-2.5 mt-15">
+      <div className="flex items-center gap-2.5 mt-8 sm:mt-10">
         {templates.map((_, index) => (
           <button
             key={index}
