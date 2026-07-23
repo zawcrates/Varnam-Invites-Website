@@ -26,27 +26,10 @@ const DEFAULT_INVITE_DATA = {
   events: [
     { 
       id: 1, 
-      name: "Haldi Ceremony", 
-      date: "Friday, Nov 21, 2025", 
-      time: "10:00 AM - 1:00 PM"
-    },
-    { 
-      id: 2, 
-      name: "Mehendi & Sangeet", 
-      date: "Saturday, Nov 22, 2025", 
-      time: "4:00 PM Onwards"
-    },
-    { 
-      id: 3, 
       name: "Wedding Ceremony", 
       date: "Sunday, Nov 23, 2025", 
-      time: "7:45 AM - 8:45 AM"
-    },
-    { 
-      id: 4, 
-      name: "Reception Party", 
-      date: "Sunday, Nov 23, 2025", 
-      time: "7:00 PM Onwards"
+      time: "7:45 AM - 8:45 AM",
+      venue: "The Grand Ballroom"
     }
   ],
   whatsappNumber: "1234567890",

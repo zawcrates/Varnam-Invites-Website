@@ -22,6 +22,7 @@ import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { ProjectService } from "@/services/ProjectService";
 import { PublishService } from "@/services/PublishService";
+import { EmailService } from "@/services/EmailService";
 
 // ---------------------------------------------------------------------------
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
     // 6. Load the project and guard against double-payment
     const { data: project, error: projectError } = await supabase
       .from("projects")
-      .select("id, status")
+      .select("id, status, draft_data")
       .eq("id", order.project_id)
       .single();
 
@@ -200,11 +201,22 @@ export async function POST(request: NextRequest) {
 
     // Call PublishService to generate slug and publish record synchronously on server
     try {
-      await PublishService.publishProject(supabase, order.project_id);
+      const pub = await PublishService.publishProject(supabase, order.project_id);
+      if (pub && pub.slug && user.email) {
+        const origin = request.nextUrl.origin;
+        const invitationUrl = `${origin}/invite/${pub.slug}`;
+        const draftData = (project.draft_data || {}) as Record<string, string>;
+
+        await EmailService.sendInvitationLiveEmail({
+          toEmail: user.email,
+          groomName: draftData.groomName,
+          brideName: draftData.brideName,
+          invitationUrl,
+          orderId: order_id,
+        });
+      }
     } catch (pubErr) {
-      console.error("[/api/orders/verify] Failed to publish project:", pubErr);
-      // We don't fail the verification since the payment was successfully processed,
-      // but log it so we can retry or handle it gracefully.
+      console.error("[/api/orders/verify] Failed to publish project or send email:", pubErr);
     }
 
     return NextResponse.json({

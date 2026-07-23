@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const LoginModal = dynamic(() => import('./LoginModal'), { ssr: false });
@@ -104,30 +105,48 @@ export default function Navbar() {
       >
         <div className="relative w-full max-w-7xl mx-auto px-5 md:px-12 flex justify-center items-center h-full">
           
-          {/* Hamburger Menu Toggle Button (Left aligned, bold 3 lines morphing into X) */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="absolute left-5 md:left-12 z-50 w-8 h-6 flex flex-col justify-center items-center focus:outline-none cursor-pointer"
-            aria-label="Toggle menu"
-          >
-            <div className="relative w-8 h-5 flex flex-col justify-between">
-              <span 
-                className={`w-8 h-[4px] bg-black transition-all duration-350 transform origin-center ${
-                  isOpen ? 'rotate-45 translate-y-[8.5px]' : ''
-                }`}
-              />
-              <span 
-                className={`w-8 h-[4px] bg-black transition-all duration-350 transform origin-center ${
-                  isOpen ? 'opacity-0 scale-x-0' : ''
-                }`}
-              />
-              <span 
-                className={`w-8 h-[4px] bg-black transition-all duration-350 transform origin-center ${
-                  isOpen ? '-rotate-45 -translate-y-[7.5px]' : ''
-                }`}
-              />
-            </div>
-          </button>
+          {/* Hamburger Menu Toggle / Back to Customize Button */}
+          {pathname === '/checkout' ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  const slug = localStorage.getItem('varnam_active_slug') || 'kovil-vaibhavam';
+                  const pid = localStorage.getItem('varnam_active_project_id');
+                  const targetUrl = pid ? `/customize/${slug}?project=${pid}` : `/customize/${slug}`;
+                  window.location.href = targetUrl;
+                }
+              }}
+              className="absolute left-5 md:left-12 z-50 inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-luxury-dark hover:text-gold-dark transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 text-luxury-dark" />
+              <span className="inline">Back to customize</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="absolute left-5 md:left-12 z-50 w-8 h-6 flex flex-col justify-center items-center focus:outline-none cursor-pointer"
+              aria-label="Toggle menu"
+            >
+              <div className="relative w-8 h-5 flex flex-col justify-between">
+                <span 
+                  className={`w-8 h-[4px] bg-black transition-all duration-350 transform origin-center ${
+                    isOpen ? 'rotate-45 translate-y-[8.5px]' : ''
+                  }`}
+                />
+                <span 
+                  className={`w-8 h-[4px] bg-black transition-all duration-350 transform origin-center ${
+                    isOpen ? 'opacity-0 scale-x-0' : ''
+                  }`}
+                />
+                <span 
+                  className={`w-8 h-[4px] bg-black transition-all duration-350 transform origin-center ${
+                    isOpen ? '-rotate-45 -translate-y-[7.5px]' : ''
+                  }`}
+                />
+              </div>
+            </button>
+          )}
  
           {/* Brand Logo Link Centered */}
           {/* Mobile: fixed h-12 crop window + overflow-hidden zooms logo without growing navbar */}

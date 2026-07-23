@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export const metadata = buildPageMetadata({
   title: 'Transparent Pricing Details',
-  description: 'Choose a premium template, pay a flat one-time licensing fee, and get one full year of hosting with premium RSVP dashboard features.',
+  description: 'Choose a premium template, pay a flat one-time licensing fee, and get lifetime hosting for your custom website.',
   path: '/pricing',
 });
 
@@ -76,7 +76,7 @@ export default function PricingPage() {
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Elegant Gold Leaf Accents</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Responsive Mobile Layouts</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Custom Event Timeline Planner</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Full Year Hosting Included</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Lifetime Hosting Included</li>
               </ul>
             </div>
             <Link href="/templates" className="w-full inline-flex justify-center text-xs uppercase tracking-widest font-bold bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white py-3.5 rounded-full transition-all text-center">
@@ -89,7 +89,7 @@ export default function PricingPage() {
         <div className="max-w-3xl mx-auto mt-12 bg-gold-light/20 border border-gold-medium/10 rounded-2xl p-5 flex gap-3.5 items-start">
           <Info className="w-5 h-5 text-gold-dark shrink-0 mt-0.5" />
           <p className="text-xs text-foreground/70 leading-relaxed">
-            All plans include hosting for 1 year from publication date. No hidden fees or recurring subscriptions. If you need details changed after checkout, our support team can assist with manual updates.
+            All plans include lifetime hosting from publication date. No hidden fees or recurring subscriptions. If you need details changed after checkout, our support team can assist with manual updates.
           </p>
         </div>
       </main>

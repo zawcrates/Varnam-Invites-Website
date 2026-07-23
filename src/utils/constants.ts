@@ -79,8 +79,8 @@ export const ROUTES = {
 /** Maximum number of events shown in the event carousel. */
 export const MAX_EVENTS = 5 as const;
 
-/** Invitation hosting duration in years. */
-export const HOSTING_DURATION_YEARS = 1 as const;
+/** Invitation hosting duration in years (Lifetime = 99 years). */
+export const HOSTING_DURATION_YEARS = 99 as const;
 
 // ---------------------------------------------------------------------------
 // Checkout Validation

@@ -90,31 +90,10 @@ export const TEMPLATES: Template[] = [
       events: [
         {
           id: "1",
-          title: "HALDI CEREMONY",
-          date: "FRIDAY, NOV 21, 2025",
-          time: "10:00 AM - 1:00 PM",
-          location: "",
-        },
-        {
-          id: "2",
-          title: "MEHENDI & SANGEET",
-          date: "SATURDAY, NOV 22, 2025",
-          time: "4:00 PM ONWARDS",
-          location: "",
-        },
-        {
-          id: "3",
           title: "WEDDING CEREMONY",
           date: "SUNDAY, NOV 23, 2025",
           time: "7:45 AM - 8:45 AM",
-          location: "",
-        },
-        {
-          id: "4",
-          title: "RECEPTION PARTY",
-          date: "SUNDAY, NOV 23, 2025",
-          time: "7:00 PM ONWARDS",
-          location: "",
+          location: "THE GRAND BALLROOM",
         },
       ],
     },

@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, ShoppingBag, ShieldCheck, CheckCircle, CreditCard, Sparkles, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, ShieldCheck, CheckCircle, CreditCard, Sparkles, AlertCircle, RefreshCw, Loader2, Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoginModal from '@/components/LoginModal';
@@ -12,6 +13,7 @@ import { useCheckout } from '@/hooks/useCheckout';
 import { TEMPLATES, InviteData } from '@/data/templates';
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const [templateSlug, setTemplateSlug] = useState<string | null>(null);
   const [customData, setCustomData] = useState<InviteData | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -144,14 +146,6 @@ export default function CheckoutPage() {
       <Navbar />
 
       <main className="flex-grow pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto w-full text-left">
-        {/* Back Link */}
-        <Link 
-          href={`/customize/${templateSlug}`}
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-foreground/50 hover:text-gold-dark transition-colors mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to customize</span>
-        </Link>
 
         <h1 className="font-sansflex text-3xl sm:text-4xl text-luxury-dark tracking-wide font-semibold mb-12">
           Review &amp; Complete Order
@@ -312,19 +306,38 @@ export default function CheckoutPage() {
           {/* Right Side: Order summary receipt card */}
           <aside className="lg:col-span-5 bg-white border border-gold-medium/10 rounded-2xl overflow-hidden luxury-shadow order-1 lg:order-2">
             
-            {/* Header image */}
-            <div className="h-44 overflow-hidden relative border-b border-gold-medium/10">
+            {/* Header image with Thumbnail & Live Preview Button */}
+            <div className="relative w-full aspect-[3/4] overflow-hidden bg-luxury-cream border-b border-gold-medium/10 group">
               <Image 
                 src={template.thumbnail} 
                 alt={template.name} 
                 fill
-                sizes="(max-width: 768px) 100vw, 400px"
-                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 450px"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
-                <span className="text-gold-medium text-[10px] font-semibold uppercase tracking-widest mb-0.5">Selected Style</span>
-                <h3 className="text-white text-base font-sansflex font-bold tracking-wide">{template.name}</h3>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-between p-6">
+                {/* Top Bar: Preview Button */}
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const slug = templateSlug || template.slug;
+                      window.open(`/invitation/preview?template=${slug}`, '_blank');
+                    }}
+                    className="inline-flex items-center gap-1.5 bg-white/90 hover:bg-white text-luxury-dark hover:text-gold-dark text-xs font-semibold px-3.5 py-2 rounded-full shadow-md backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer z-20"
+                    title="Preview live interactive invitation"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-gold-dark" />
+                    <span>Preview</span>
+                  </button>
+                </div>
+
+                {/* Bottom: Template Title & Style */}
+                <div>
+                  <span className="text-gold-medium text-[10px] font-semibold uppercase tracking-widest block mb-0.5">Selected Style</span>
+                  <h3 className="text-white text-lg font-sansflex font-bold tracking-wide">{template.name}</h3>
+                </div>
               </div>
             </div>
 
@@ -344,7 +357,7 @@ export default function CheckoutPage() {
                   <span>-₹{template.originalPrice - template.price}</span>
                 </div>
                 <div className="flex justify-between text-foreground/75">
-                  <span>Server Hosting (1 Year)</span>
+                  <span>Lifetime Server Hosting</span>
                   <span className="text-xs uppercase tracking-widest text-gold-dark font-bold">Free</span>
                 </div>
                 
@@ -362,7 +375,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex items-start gap-2.5 text-xs text-foreground/80 leading-normal">
                   <CheckCircle className="w-4 h-4 text-gold-dark shrink-0 mt-0.5" />
-                  <span>RSVP dashboard link delivered to email.</span>
+                  <span>Shareable website link delivered instantly to email.</span>
                 </div>
               </div>
 

@@ -17,6 +17,7 @@ function InvitationPreviewContent() {
   const [liveDefaultData, setLiveDefaultData] = useState<Partial<InviteData>>(
     manifest?.defaultData || staticRecord?.defaultData || {}
   );
+  const [localCustomData, setLocalCustomData] = useState<Partial<InviteData> | null>(null);
 
   useEffect(() => {
     async function loadLiveTemplate() {
@@ -32,7 +33,19 @@ function InvitationPreviewContent() {
     loadLiveTemplate();
   }, [templateSlug]);
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("varnam_active_custom_data");
+      if (stored) {
+        setLocalCustomData(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error("Failed to load local custom data for preview:", e);
+    }
+  }, []);
+
   const defaultData = liveDefaultData;
+  const activeCustom = localCustomData || {};
 
   const eventsParam = searchParams.get("events");
   let parsedEvents = undefined;
@@ -44,31 +57,31 @@ function InvitationPreviewContent() {
     }
   }
 
-  // Reconstruct inviteData with fallbacks from live defaultData
+  // Reconstruct inviteData prioritizing: URL searchParams -> active user customData -> template defaultData
   const inviteData: Partial<InviteData> = {
     showPreloader: searchParams.has("showPreloader")
       ? searchParams.get("showPreloader") === "true"
-      : defaultData.showPreloader ?? false,
+      : (activeCustom.showPreloader ?? defaultData.showPreloader ?? false),
     preloaderTime: parseFloat(
-      searchParams.get("preloaderTime") || String(defaultData.preloaderTime ?? 0.7)
+      searchParams.get("preloaderTime") || String(activeCustom.preloaderTime ?? defaultData.preloaderTime ?? 0.7)
     ),
-    groomName: searchParams.get("groomName") || defaultData.groomName,
-    connector: searchParams.get("connector") || defaultData.connector,
-    brideName: searchParams.get("brideName") || defaultData.brideName,
-    welcomeTop: searchParams.get("welcomeTop") || defaultData.welcomeTop,
-    andText: searchParams.get("andText") || defaultData.andText,
-    inviteText1: searchParams.get("inviteText1") || defaultData.inviteText1,
-    inviteText2: searchParams.get("inviteText2") || defaultData.inviteText2,
-    month: searchParams.get("month") || defaultData.month,
-    dateDetails: searchParams.get("dateDetails") || defaultData.dateDetails,
-    time: searchParams.get("time") || defaultData.time,
-    locationLine1: searchParams.get("locationLine1") || defaultData.locationLine1,
-    locationLine2: searchParams.get("locationLine2") || defaultData.locationLine2,
-    mapEmbedUrl: searchParams.get("mapEmbedUrl") || defaultData.mapEmbedUrl,
-    storyText: searchParams.get("storyText") || defaultData.storyText,
-    whatsappNumber: searchParams.get("whatsappNumber") || defaultData.whatsappNumber,
-    audioSrc: searchParams.get("audioSrc") || defaultData.audioSrc,
-    events: parsedEvents || defaultData.events,
+    groomName: searchParams.get("groomName") || activeCustom.groomName || defaultData.groomName,
+    connector: searchParams.get("connector") || activeCustom.connector || defaultData.connector,
+    brideName: searchParams.get("brideName") || activeCustom.brideName || defaultData.brideName,
+    welcomeTop: searchParams.get("welcomeTop") || activeCustom.welcomeTop || defaultData.welcomeTop,
+    andText: searchParams.get("andText") || activeCustom.andText || defaultData.andText,
+    inviteText1: searchParams.get("inviteText1") || activeCustom.inviteText1 || defaultData.inviteText1,
+    inviteText2: searchParams.get("inviteText2") || activeCustom.inviteText2 || defaultData.inviteText2,
+    month: searchParams.get("month") || activeCustom.month || defaultData.month,
+    dateDetails: searchParams.get("dateDetails") || activeCustom.dateDetails || defaultData.dateDetails,
+    time: searchParams.get("time") || activeCustom.time || defaultData.time,
+    locationLine1: searchParams.get("locationLine1") || activeCustom.locationLine1 || defaultData.locationLine1,
+    locationLine2: searchParams.get("locationLine2") || activeCustom.locationLine2 || defaultData.locationLine2,
+    mapEmbedUrl: searchParams.get("mapEmbedUrl") || activeCustom.mapEmbedUrl || defaultData.mapEmbedUrl,
+    storyText: searchParams.get("storyText") || activeCustom.storyText || defaultData.storyText,
+    whatsappNumber: searchParams.get("whatsappNumber") || activeCustom.whatsappNumber || defaultData.whatsappNumber,
+    audioSrc: searchParams.get("audioSrc") || activeCustom.audioSrc || defaultData.audioSrc,
+    events: parsedEvents || (activeCustom.events && activeCustom.events.length > 0 ? activeCustom.events : defaultData.events),
   };
 
   const Renderer = getTemplateRenderer(templateSlug);
@@ -89,8 +102,9 @@ export default function InvitationPreviewPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-screen bg-[#fdfbf7] text-[#834701] font-serif text-lg tracking-widest">
-          Loading Preview...
+        <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-950 text-gold-medium p-6">
+          <div className="w-8 h-8 border-2 border-gold-medium border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-xs uppercase tracking-widest font-medium">Loading Live Preview...</p>
         </div>
       }
     >

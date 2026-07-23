@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter, notFound } from 'next/navigation';
-import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2, Calendar } from 'lucide-react';
 import { TEMPLATES } from '@/data/templates';
 import { TemplateService } from '@/services/TemplateService';
 import { useProject } from '@/hooks/useProject';
@@ -228,7 +228,7 @@ export default function CustomizePage({ params }: PageProps) {
             {[
               { id: 'couple', label: 'Names', icon: Heart },
               { id: 'event', label: 'Ceremony', icon: MapPin },
-              { id: 'rsvp-story', label: 'RSVP & Story', icon: MessageSquare }
+              { id: 'rsvp-story', label: 'Add Events', icon: Calendar }
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -390,7 +390,7 @@ export default function CustomizePage({ params }: PageProps) {
             {activeTab === 'rsvp-story' && (
               <div className="space-y-4 animate-fade-in">
                 <h3 className="font-sansflex text-base font-bold text-gold-dark mb-4 pb-2 border-b border-gold-medium/5">
-                  RSVP & Story info
+                  Additional Events
                 </h3>
 
                 <div className="flex flex-col gap-1.5">
