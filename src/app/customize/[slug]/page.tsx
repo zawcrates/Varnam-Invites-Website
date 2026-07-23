@@ -408,16 +408,6 @@ export default function CustomizePage({ params }: PageProps) {
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs uppercase tracking-wider font-semibold text-foreground/60">Background Music MP3 URL</label>
-                  <input
-                    type="text"
-                    name="audioSrc"
-                    value={formData.audioSrc}
-                    onChange={handleInputChange}
-                    className="w-full bg-gold-light/20 border border-gold-medium/20 focus:border-gold-dark focus:ring-1 focus:ring-gold-dark rounded-xl px-4 py-3 text-sm outline-none text-luxury-dark transition-all font-mono"
-                  />
-                </div>
 
                 <div className="flex flex-col gap-2.5 pt-2">
                   <div className="flex justify-between items-center pb-2 border-b border-gold-medium/10">

@@ -11,13 +11,13 @@ export default function Footer() {
         
         {/* Brand */}
         <div className="md:col-span-2 self-center flex flex-col items-start gap-1">
-          <Link href="/" className="relative block h-8 w-40 sm:w-52 overflow-hidden group">
+          <Link href="/" className="inline-block relative h-18 sm:h-22 w-56 sm:w-72 group">
             <Image 
               src="/Varnam_svg1.png" 
               alt="Varnam Invites Logo" 
-              width={260}
-              height={110}
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-auto h-auto object-contain max-w-full transition-opacity group-hover:opacity-85" 
+              width={320}
+              height={135}
+              className="w-auto h-full object-contain object-left transition-opacity group-hover:opacity-85" 
             />
           </Link>
           <p className="font-sansflex text-xs text-gold-light/50 tracking-wide pl-4 max-w-xs leading-relaxed">
