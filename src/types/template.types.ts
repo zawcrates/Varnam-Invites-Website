@@ -92,6 +92,76 @@ export interface InviteData {
 export type TemplateCategory = "Vintage" | "Modern" | "Traditional" | "Floral";
 
 // ---------------------------------------------------------------------------
+// Template Visibility & SEO
+// ---------------------------------------------------------------------------
+
+/** Extended visibility state for templates in the admin CMS. */
+export type TemplateVisibility = "draft" | "published" | "archived" | "hidden";
+
+/** SEO metadata for template detail pages. */
+export interface SeoMetadata {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Template Manifest & CMS Discovery Types
+// ---------------------------------------------------------------------------
+
+/**
+ * Static manifest exported inside every developer template folder:
+ * src/templates/<slug>/manifest.ts
+ */
+export interface TemplateManifest {
+  /** Official slug matching the folder name under src/templates/ */
+  slug: string;
+  /** Display name of the template component */
+  name: string;
+  /** Visual category style */
+  category: TemplateCategory;
+  /** Manifest version number */
+  version: number;
+  /** Template author or studio name */
+  author?: string;
+  /** Default short description */
+  description?: string;
+  /** Path or URL to template thumbnail preview */
+  thumbnail?: string;
+  /** Default bullet-point feature list */
+  features?: string[];
+  /** Optional default invitation form preset values */
+  defaultData?: Partial<InviteData>;
+}
+
+/** Discovery payload returned to Admin CMS when scanning registered templates */
+export interface RegisteredTemplateInfo {
+  slug: string;
+  manifest: TemplateManifest;
+  isRegistered: boolean;
+  hasDatabaseRecord: boolean;
+  existingTemplateId?: string;
+}
+
+/** Pre-publish validation check result for Admin CMS */
+export interface TemplateValidationResult {
+  isValid: boolean;
+  canPublish: boolean;
+  errors: string[];
+  warnings: string[];
+  checks: {
+    folderExists: boolean;
+    isRegistered: boolean;
+    manifestValid: boolean;
+    slugMatch: boolean;
+    thumbnailUploaded: boolean;
+    priceConfigured: boolean;
+    nameConfigured: boolean;
+    visibilitySelected: boolean;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Template
 // ---------------------------------------------------------------------------
 
@@ -127,4 +197,20 @@ export interface Template {
    * This is the sample invite shown when a user first opens the template.
    */
   defaultData: InviteData;
+
+  // --- Extended CMS Fields ---
+  /** Visibility state driving public catalog placement. Defaults to 'draft'. */
+  visibility?: TemplateVisibility;
+  /** Whether the template is highlighted in featured carousels. */
+  featured?: boolean;
+  /** Sorting order integer in catalog listings. */
+  displayOrder?: number;
+  /** Sorting priority for admin organization. */
+  priority?: number;
+  /** Gallery image URLs for template detail showcase. */
+  gallery?: string[];
+  /** URL to background audio file hosted on Supabase storage. */
+  audioUrl?: string;
+  /** Custom SEO title/description metadata. */
+  seoMetadata?: SeoMetadata;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,10 +9,27 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroCarousel from '@/components/HeroCarousel';
 import { TEMPLATES } from '@/data/templates';
+import { TemplateService } from '@/services/TemplateService';
+import type { Template } from '@/types';
 
 export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES);
+
+  useEffect(() => {
+    async function loadTemplates() {
+      try {
+        const live = await TemplateService.getAll();
+        if (live && live.length > 0) {
+          setTemplates(live);
+        }
+      } catch (e) {
+        console.error("Failed to load homepage templates:", e);
+      }
+    }
+    loadTemplates();
+  }, []);
   const categories = ['all', 'Vintage', 'Traditional', 'Modern', 'Floral'];
 
   const toggleFaq = (index: number) => {
@@ -127,10 +144,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {TEMPLATES.length > 0 ? (
+        {templates.length > 0 ? (
           <>
             <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-              {TEMPLATES.filter(
+              {templates.filter(
                 (t) => selectedCategory === 'all' || t.category === selectedCategory
               ).slice(0, 6).map((template) => (
                 <motion.div

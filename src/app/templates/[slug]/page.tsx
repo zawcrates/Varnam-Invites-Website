@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Monitor, Smartphone, ExternalLink, Sliders } from 'lucide-react';
 import { TEMPLATES } from '@/data/templates';
+import { TemplateService } from '@/services/TemplateService';
+import type { Template } from '@/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -12,17 +14,32 @@ interface PageProps {
 
 export default function TemplateDetailsPage({ params }: PageProps) {
   const { slug } = use(params);
+  const initial = TEMPLATES.find(t => t.slug === slug);
+  const [template, setTemplate] = useState<Template | null>(initial || null);
+
+  useEffect(() => {
+    async function loadTemplate() {
+      try {
+        const live = await TemplateService.getBySlug(slug);
+        if (live) {
+          setTemplate(live);
+        }
+      } catch (e) {
+        console.error("Failed to load live template details:", e);
+      }
+    }
+    loadTemplate();
+  }, [slug]);
   
-  // Find current template
-  const template = TEMPLATES.find(t => t.slug === slug);
-  if (!template) {
+  if (!template && !initial) {
     notFound();
   }
   
+  const currentTemplate = template || initial!;
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('mobile');
 
   // Preview URL for the iframe
-  const previewUrl = `/invitation/preview?template=${template.slug}`;
+  const previewUrl = `/invitation/preview?template=${currentTemplate.slug}`;
 
   return (
     <div className="flex flex-col h-screen bg-[#f7f5f0] text-luxury-dark select-none">
@@ -41,10 +58,10 @@ export default function TemplateDetailsPage({ params }: PageProps) {
           </Link>
           <div className="max-w-[120px] sm:max-w-none">
             <h1 className="font-sansflex font-bold text-sm sm:text-lg tracking-wide truncate">
-              {template.name}
+              {currentTemplate.name}
             </h1>
             <p className="text-[9px] sm:text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
-              ₹{template.price} &bull; {template.category}
+              ₹{currentTemplate.price} &bull; {currentTemplate.category}
             </p>
           </div>
         </div>
@@ -90,7 +107,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
           
           {/* Primary CTA */}
           <Link
-            href={`/customize/${template.slug}`}
+            href={`/customize/${currentTemplate.slug}`}
             className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-[10px] sm:text-xs uppercase tracking-widest font-semibold px-4.5 py-2.5 sm:px-5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md shrink-0"
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -121,7 +138,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
               <iframe
                 src={previewUrl}
                 className="w-full h-full border-0"
-                title={`${template.name} Mobile Preview`}
+                title={`${currentTemplate.name} Mobile Preview`}
               />
             </div>
           </div>
@@ -134,7 +151,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
               <div className="w-2.5 h-2.5 rounded-full bg-neutral-300" />
               <div className="w-2.5 h-2.5 rounded-full bg-neutral-300" />
               <div className="bg-neutral-200/50 text-[10px] text-foreground/40 font-sansflex tracking-wide px-4 py-0.5 rounded-md ml-4 w-64 truncate">
-                varnaminvites.com/preview/{template.slug}
+                varnaminvites.com/preview/{currentTemplate.slug}
               </div>
             </div>
             {/* Iframe */}
@@ -142,7 +159,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
               <iframe
                 src={previewUrl}
                 className="w-full h-full border-0"
-                title={`${template.name} Desktop Preview`}
+                title={`${currentTemplate.name} Desktop Preview`}
               />
             </div>
           </div>
@@ -152,7 +169,7 @@ export default function TemplateDetailsPage({ params }: PageProps) {
       {/* Sticky Mobile CTA */}
       <div className="sm:hidden fixed bottom-6 left-0 right-0 px-6 z-30 flex justify-center pointer-events-none">
         <Link
-          href={`/customize/${template.slug}`}
+          href={`/customize/${currentTemplate.slug}`}
           className="pointer-events-auto flex items-center justify-center gap-2 w-full max-w-[280px] py-3.5 bg-luxury-dark border border-gold-medium/30 text-gold-light font-sansflex text-xs uppercase tracking-widest font-bold rounded-full shadow-[0_10px_30px_rgba(18,18,18,0.25)] active:scale-95 transition-all duration-300"
         >
           <Sliders className="w-4 h-4 text-gold-medium" />

@@ -17,6 +17,11 @@ export type {
   InviteData,
   Template,
   TemplateCategory,
+  TemplateVisibility,
+  SeoMetadata,
+  TemplateManifest,
+  RegisteredTemplateInfo,
+  TemplateValidationResult,
 } from "./template.types";
 
 export type {

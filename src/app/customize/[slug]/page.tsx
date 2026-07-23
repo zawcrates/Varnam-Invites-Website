@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter, notFound } from 'next/navigation';
 import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { TEMPLATES } from '@/data/templates';
+import { TemplateService } from '@/services/TemplateService';
 import { useProject } from '@/hooks/useProject';
-import type { SaveStatus, ConnectionStatus } from '@/types';
+import type { SaveStatus, ConnectionStatus, Template } from '@/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -70,22 +71,39 @@ export default function CustomizePage({ params }: PageProps) {
   const [isNavigating, setIsNavigating] = useState(false);
 
   // Find template
-  const template = TEMPLATES.find(t => t.slug === slug);
-  if (!template) {
+  const initialTemplate = TEMPLATES.find((t) => t.slug === slug);
+  const [template, setTemplate] = useState<Template | null>(initialTemplate || null);
+
+  useEffect(() => {
+    async function loadLiveTemplate() {
+      try {
+        const live = await TemplateService.getBySlug(slug);
+        if (live) setTemplate(live);
+      } catch (e) {
+        console.error("Failed to load live template for customizer:", e);
+      }
+    }
+    loadLiveTemplate();
+  }, [slug]);
+
+  if (!template && !initialTemplate) {
     notFound();
   }
 
+  const currentTemplate = template || initialTemplate!;
+
   // Active form section tab
-  const [activeTab, setActiveTab] = useState<TabType>('couple');
+  const [activeTab, setActiveTab] = useState<TabType>("couple");
 
   // Preview frame view mode
-  const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
+  const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
 
   // Mobile active layout tab switcher ('form' or 'preview')
-  const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
+  const [mobileView, setMobileView] = useState<"form" | "preview">("form");
 
   // Project & Draft Engine
-  const { project, formData, updateFormData, saveStatus, connectionStatus } = useProject(slug, template);
+  const { project, formData, updateFormData, saveStatus, connectionStatus } =
+    useProject(slug, currentTemplate);
 
   // Handle Input Changes – delegates to useProject which handles
   // localStorage write + debounced Supabase save automatically.
@@ -175,7 +193,7 @@ export default function CustomizePage({ params }: PageProps) {
           </Link>
           <div>
             <h1 className="font-sansflex font-bold text-sm sm:text-lg tracking-wide truncate max-w-[150px] sm:max-w-none">
-              Customize {template.name}
+              Customize {currentTemplate.name}
             </h1>
             <p className="hidden sm:block text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
               Live Editing Workspace

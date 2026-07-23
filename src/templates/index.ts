@@ -36,10 +36,8 @@
  *   royal-heritage     → Phase D (migrated this sprint)
  */
 
-"use client";
-
 import { ComponentType } from "react";
-import type { InviteData } from "@/types";
+import type { InviteData, TemplateManifest } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Renderer interface
@@ -51,9 +49,12 @@ export interface TemplateRendererProps {
 }
 
 // ---------------------------------------------------------------------------
-// Template imports
+// Template imports & manifests
 // ---------------------------------------------------------------------------
-// No templates registered (empty catalog).
+import KovilVaibhavam from "./Kovil_Vaibhavam/index";
+import kovilVaibhavamManifest from "./Kovil_Vaibhavam/manifest";
+import GoldenCoast from "./Golden_Coast/index";
+import goldenCoastManifest from "./Golden_Coast/manifest";
 
 // ---------------------------------------------------------------------------
 // Registry
@@ -67,7 +68,21 @@ export interface TemplateRendererProps {
  */
 export const TemplateRegistry: Readonly<
   Record<string, ComponentType<TemplateRendererProps>>
-> = {} as const;
+> = {
+  "kovil-vaibhavam": KovilVaibhavam,
+  "golden-coast": GoldenCoast,
+} as const;
+
+/**
+ * The Manifest Registry.
+ * Maps template slugs to their static developer-defined manifest.ts metadata.
+ */
+export const RegisteredManifests: Readonly<
+  Record<string, TemplateManifest>
+> = {
+  "kovil-vaibhavam": kovilVaibhavamManifest,
+  "golden-coast": goldenCoastManifest,
+} as const;
 
 // ---------------------------------------------------------------------------
 // Registry lookup helper
@@ -76,14 +91,6 @@ export const TemplateRegistry: Readonly<
 /**
  * Retrieves a template renderer by slug.
  * Returns `null` if no renderer is registered for that slug.
- *
- * This is the ONLY function pages should use to get a renderer.
- * Never access TemplateRegistry[slug] directly in page code.
- *
- * @example
- *   const Renderer = getTemplateRenderer("vintage-parchment");
- *   if (!Renderer) return <NotFound />;
- *   return <Renderer inviteData={data} />;
  */
 export function getTemplateRenderer(
   slug: string
@@ -93,8 +100,29 @@ export function getTemplateRenderer(
 
 /**
  * Returns all registered template slugs.
- * Used by Next.js `generateStaticParams` to pre-render invitation pages.
+ * Used by Next.js `generateStaticParams` to pre-render invitation pages and by CMS.
  */
 export function getRegisteredSlugs(): string[] {
   return Object.keys(TemplateRegistry);
+}
+
+/**
+ * Returns all registered manifests for CMS discovery.
+ */
+export function getRegisteredManifests(): TemplateManifest[] {
+  return Object.values(RegisteredManifests);
+}
+
+/**
+ * Retrieves a template manifest by slug.
+ */
+export function getTemplateManifest(slug: string): TemplateManifest | null {
+  return RegisteredManifests[slug] ?? null;
+}
+
+/**
+ * Checks if a template slug is registered in the system.
+ */
+export function isTemplateRegistered(slug: string): boolean {
+  return slug in TemplateRegistry;
 }

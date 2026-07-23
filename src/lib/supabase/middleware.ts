@@ -30,5 +30,5 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: Do NOT remove this getUser() call, as it refreshes the session cookie.
   const { data: { user } } = await supabase.auth.getUser();
 
-  return { supabaseResponse, user };
+  return { supabaseResponse, user, supabase };
 }

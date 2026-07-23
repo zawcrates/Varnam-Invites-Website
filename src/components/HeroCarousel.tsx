@@ -6,11 +6,28 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 import { TEMPLATES } from '@/data/templates';
+import { TemplateService } from '@/services/TemplateService';
+import type { Template } from '@/types';
 
 export default function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const [windowWidth, setWindowWidth] = useState(1024);
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES);
+
+  useEffect(() => {
+    async function loadTemplates() {
+      try {
+        const live = await TemplateService.getAll();
+        if (live && live.length > 0) {
+          setTemplates(live);
+        }
+      } catch (e) {
+        console.error("Failed to load carousel templates:", e);
+      }
+    }
+    loadTemplates();
+  }, []);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -20,20 +37,20 @@ export default function HeroCarousel() {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (TEMPLATES.length === 0) return;
-    setActiveIndex((prev) => (prev + 1) % TEMPLATES.length);
-  }, []);
+    if (templates.length === 0) return;
+    setActiveIndex((prev) => (prev + 1) % templates.length);
+  }, [templates.length]);
 
   // Auto scroll every 6 seconds
   useEffect(() => {
-    if (TEMPLATES.length === 0) return;
+    if (templates.length === 0) return;
     const timer = setInterval(() => {
       handleNext();
     }, 6000);
     return () => clearInterval(timer);
-  }, [handleNext]);
+  }, [handleNext, templates.length]);
 
-  if (TEMPLATES.length === 0) {
+  if (templates.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[320px] w-full max-w-[400px] mx-auto text-center border border-dashed border-gold-medium/30 rounded-[32px] bg-gold-light/10 p-8 select-none">
         <span className="text-gold-dark text-xs uppercase tracking-[0.25em] font-semibold mb-3">Exclusive Launch</span>
@@ -52,14 +69,14 @@ export default function HeroCarousel() {
         
         {/* Cards Container */}
         <div className="relative w-full h-full flex items-center justify-center overflow-visible">
-          {TEMPLATES.map((template, index) => {
+          {templates.map((template, index) => {
             // Calculate relative offset of this card from active index
             let offset = index - activeIndex;
 
             // Handle loop wrap-around calculations
-            const half = Math.floor(TEMPLATES.length / 2);
-            while (offset > half) offset -= TEMPLATES.length;
-            while (offset <= -half) offset += TEMPLATES.length;
+            const half = Math.floor(templates.length / 2);
+            while (offset > half) offset -= templates.length;
+            while (offset <= -half) offset += templates.length;
 
             const isActive = offset === 0;
             const isPrev = offset === -1;
@@ -158,7 +175,7 @@ export default function HeroCarousel() {
 
       {/* Bullet / Dot Indicators */}
       <div className="flex items-center gap-2.5 mt-15">
-        {TEMPLATES.map((_, index) => (
+        {templates.map((_, index) => (
           <button
             key={index}
             onClick={() => setActiveIndex(index)}

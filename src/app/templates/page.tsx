@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -8,6 +8,8 @@ import { SlidersHorizontal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { TEMPLATES } from '@/data/templates';
+import { TemplateService } from '@/services/TemplateService';
+import type { Template } from '@/types';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating';
 type CategoryFilter = 'all' | 'Vintage' | 'Traditional' | 'Modern';
@@ -15,12 +17,27 @@ type CategoryFilter = 'all' | 'Vintage' | 'Traditional' | 'Modern';
 export default function TemplatesPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES);
+
+  useEffect(() => {
+    async function loadTemplates() {
+      try {
+        const liveTemplates = await TemplateService.getAll();
+        if (liveTemplates && liveTemplates.length > 0) {
+          setTemplates(liveTemplates);
+        }
+      } catch (e) {
+        console.error("Failed to fetch live templates:", e);
+      }
+    }
+    loadTemplates();
+  }, []);
 
   const categories: CategoryFilter[] = ['all', 'Vintage', 'Traditional', 'Modern'];
 
   // Filter and sort logic
   const filteredAndSortedTemplates = useMemo(() => {
-    let result = [...TEMPLATES];
+    let result = [...templates];
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -37,7 +54,7 @@ export default function TemplatesPage() {
     }
 
     return result;
-  }, [selectedCategory, sortBy]);
+  }, [templates, selectedCategory, sortBy]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
