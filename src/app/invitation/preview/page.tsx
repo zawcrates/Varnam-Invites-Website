@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { getTemplateRenderer, getTemplateManifest } from "@/templates";
 import { InviteData, TEMPLATES } from "@/data/templates";
 import { TemplateService } from "@/services/TemplateService";
+import WatermarkOverlay from "@/components/WatermarkOverlay";
 
 function InvitationPreviewContent() {
   const searchParams = useSearchParams();
@@ -95,7 +96,12 @@ function InvitationPreviewContent() {
     );
   }
 
-  return <Renderer inviteData={inviteData} />;
+  return (
+    <>
+      <WatermarkOverlay />
+      <Renderer inviteData={inviteData} />
+    </>
+  );
 }
 
 export default function InvitationPreviewPage() {

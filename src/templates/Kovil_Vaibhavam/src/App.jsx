@@ -3,13 +3,10 @@ import { ReactLenis } from '@studio-freight/react-lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Loader from './Loader';
-import SitePreloader from './SitePreloader';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const DEFAULT_INVITE_DATA = {
-  showPreloader: false,
-  preloaderTime: 0.7,
   groomName: "Virat Kohli",
   connector: "Weds",
   brideName: "Anushka Sharma",
@@ -114,7 +111,6 @@ function App({ inviteData = {} }) {
 
   return (
     <ReactLenis root options={{ lerp: 0.08, smoothWheel: true }}>
-      {data.showPreloader && <SitePreloader duration={data.preloaderTime} />}
       <div className="app-container">
         
         {/* We moved bgRef to the wrapper so the text also parallaxes with the sky! */}

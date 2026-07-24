@@ -334,7 +334,7 @@ export default function HomePage() {
 
           <div className="flex justify-center mt-12">
             <Link
-              href="mailto:support@varnaminvites.com?subject=Enquiry%20regarding%20Wedding%20Invitation%20Templates"
+              href="/contact"
               className="inline-flex items-center justify-center bg-gold-medium hover:bg-gold-dark text-luxury-dark hover:text-white font-sansflex text-xs uppercase tracking-widest font-bold w-[200px] h-[48px] rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-gold-medium/15 border border-gold-medium/20"
             >
               Enquire

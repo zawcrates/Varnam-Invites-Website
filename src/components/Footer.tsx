@@ -47,7 +47,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/#contact" className="hover:text-gold-medium transition-colors">
+              <Link href="/contact" className="hover:text-gold-medium transition-colors">
                 Contact Us
               </Link>
             </li>
@@ -61,13 +61,13 @@ export default function Footer() {
           </h4>
           <ul className="flex flex-col gap-4 text-sm text-gold-light/60">
             <li>
-              <span>Email: support@varnaminvites.com</span>
+              <span>Email: varnaminvites@gmail.com</span>
             </li>
             <li>
-              <span>Phone: +91 98765 43210</span>
+              <span>Phone: +91 63792 37294</span>
             </li>
             <li>
-              <span>Bangalore, India</span>
+              <span>Chennai, India</span>
             </li>
           </ul>
         </div>
@@ -79,8 +79,8 @@ export default function Footer() {
           &copy; {currentYear} Varnam Invites. All rights reserved. Built with love for your special day.
         </p>
         <div className="flex gap-6 text-xs text-gold-light/40">
-          <a href="#" className="hover:text-gold-medium transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-gold-medium transition-colors">Terms of Service</a>
+          <Link href="/privacy-policy" className="hover:text-gold-medium transition-colors">Privacy Policy &amp; Terms</Link>
+          <Link href="/refund-policy" className="hover:text-gold-medium transition-colors">Refund Policy</Link>
         </div>
       </div>
     </footer>

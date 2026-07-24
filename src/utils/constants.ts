@@ -16,8 +16,9 @@
 
 export const APP_NAME = "Varnam Invites" as const;
 export const APP_TAGLINE = "Premium Digital Wedding Invitations" as const;
-export const SUPPORT_EMAIL = "support@varnaminvites.com" as const;
-export const SUPPORT_PHONE = "+91 98765 43210" as const;
+export const SUPPORT_EMAIL = "varnaminvites@gmail.com" as const;
+export const SUPPORT_PHONE = "+91 63792 37294" as const;
+export const SUPPORT_LOCATION = "Chennai, India" as const;
 
 // ---------------------------------------------------------------------------
 // Currency

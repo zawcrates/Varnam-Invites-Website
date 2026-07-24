@@ -7,21 +7,25 @@
 @font-face {
   font-family: 'Sunroll';
   src: url('/Sunroll.ttf') format('truetype');
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Whitley Pattrycia';
   src: url('/Whitley Pattrycia.otf') format('opentype');
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Fondamento';
   src: url('/Fondamento-Regular.ttf') format('truetype');
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Afacad';
   src: url('/Afacad-VariableFont_wght.ttf') format('truetype');
+  font-display: swap;
 }
 
 body {

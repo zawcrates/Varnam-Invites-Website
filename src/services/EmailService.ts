@@ -60,7 +60,7 @@ export class EmailService {
           </div>
           <div class="footer">
             <p>&copy; ${new Date().getFullYear()} Varnam Invites. All rights reserved.</p>
-            <p>Need help or updates? Reply to this email or contact support@varnaminvites.com</p>
+            <p>Need help or updates? Reply to this email or contact varnaminvites@gmail.com</p>
           </div>
         </div>
       </body>
