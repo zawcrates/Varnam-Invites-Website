@@ -168,19 +168,43 @@ export class PublishService {
    */
   static async getPublicInvitation(slug: string): Promise<PublicInvitationPayload | null> {
     const supabase = getClient();
-    const { data, error } = await supabase
-      .rpc("get_public_invitation", { p_slug: slug });
 
-    if (error) {
-      console.error("[PublishService.getPublicInvitation] RPC error:", error);
-      return null;
+    // 1. Try RPC function call
+    try {
+      const { data, error } = await supabase.rpc("get_public_invitation", { p_slug: slug });
+      if (!error && data && data.length > 0) {
+        return data[0] as PublicInvitationPayload;
+      }
+    } catch (e) {
+      console.warn("[PublishService.getPublicInvitation] RPC call failed, trying direct query:", e);
     }
 
-    if (!data || data.length === 0) {
+    // 2. Direct database query fallback
+    try {
+      const { data: pub, error: pubError } = await supabase
+        .from("published_invitations")
+        .select("slug, is_active, published_version, published_at, projects!inner(template_slug, draft_data)")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (pubError || !pub || !pub.projects) {
+        return null;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const proj = (Array.isArray(pub.projects) ? pub.projects[0] : pub.projects) as any;
+
+      return {
+        slug: pub.slug,
+        template_slug: proj.template_slug,
+        draft_data: proj.draft_data,
+        published_version: pub.published_version,
+        published_at: pub.published_at,
+      } as PublicInvitationPayload;
+    } catch (err) {
+      console.error("[PublishService.getPublicInvitation] Direct query error:", err);
       return null;
     }
-
-    // The RPC returns a set of rows; return the first match
-    return data[0] as PublicInvitationPayload;
   }
 }
