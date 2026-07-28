@@ -53,8 +53,6 @@ export interface TemplateRendererProps {
 // ---------------------------------------------------------------------------
 import KovilVaibhavam from "./Kovil_Vaibhavam/index";
 import kovilVaibhavamManifest from "./Kovil_Vaibhavam/manifest";
-import GoldenCoast from "./Golden_Coast/index";
-import goldenCoastManifest from "./Golden_Coast/manifest";
 
 // ---------------------------------------------------------------------------
 // Registry
@@ -70,7 +68,6 @@ export const TemplateRegistry: Readonly<
   Record<string, ComponentType<TemplateRendererProps>>
 > = {
   "kovil-vaibhavam": KovilVaibhavam,
-  "golden-coast": GoldenCoast,
 } as const;
 
 /**
@@ -81,7 +78,6 @@ export const RegisteredManifests: Readonly<
   Record<string, TemplateManifest>
 > = {
   "kovil-vaibhavam": kovilVaibhavamManifest,
-  "golden-coast": goldenCoastManifest,
 } as const;
 
 // ---------------------------------------------------------------------------

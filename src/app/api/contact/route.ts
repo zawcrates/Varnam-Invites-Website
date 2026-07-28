@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (response.ok) {
-          console.log(`[Contact API] Inquiry email sent to ${brandEmail}`);
+          console.log(`[Contact API] Inquiry email sent successfully.`);
         } else {
           const errData = await response.json();
           console.error("[Contact API] Resend API error:", errData);
@@ -87,13 +87,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Server log fallback output for development & record keeping
-    console.log("============================================================");
-    console.log(`[CONTACT FORM SUBMISSION RECEIVED]`);
-    console.log(`TO BRAND EMAIL: ${brandEmail}`);
-    console.log(`FROM: ${name} <${email}>`);
-    console.log(`MESSAGE: ${message}`);
-    console.log("============================================================");
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[Contact API] Contact form inquiry received.`);
+    }
 
     return NextResponse.json({
       success: true,

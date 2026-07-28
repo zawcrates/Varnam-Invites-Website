@@ -9,6 +9,7 @@ const manifest: TemplateManifest = {
   description:
     "A regal South-Indian temple-inspired wedding invitation with parallax scrolling, parchment canvases, events carousel, map embed, background music and optional site preloader.",
   thumbnail: "/kovil-vaibhavam/thumbnail.jpeg",
+  endingArtwork: "/end.png",
   features: [
     "Parallax hero background with names overlay",
     "Parchment invite canvas with full invite text",

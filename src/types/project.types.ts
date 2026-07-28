@@ -48,6 +48,8 @@ export type SaveStatus = "idle" | "saving" | "saved" | "error";
  */
 export type ConnectionStatus = "online" | "offline";
 
+export type PremiumArtworkStatus = "pending" | "in_progress" | "completed" | "delivered";
+
 // ---------------------------------------------------------------------------
 // Project Entity
 // ---------------------------------------------------------------------------
@@ -63,6 +65,8 @@ export interface Project {
   template_slug: string;
   status: ProjectStatus;
   draft_data: InviteData;
+  custom_artwork_requested?: boolean | null;
+  custom_artwork_status?: PremiumArtworkStatus | null;
   last_opened_at: string | null;
   created_at: string;
   updated_at: string;

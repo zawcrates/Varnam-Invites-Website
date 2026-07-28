@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Upload, Save, Sparkles, Music, CheckCircle2, AlertTriangle, XCircle, FolderCheck } from "lucide-react";
+import { ArrowLeft, Upload, Save, Music, CheckCircle2, AlertTriangle, XCircle, FolderCheck } from "lucide-react";
 import type { TemplateCategory, TemplateVisibility, RegisteredTemplateInfo } from "@/types";
 import { validateTemplateForPublish } from "@/utils/templateValidation";
 

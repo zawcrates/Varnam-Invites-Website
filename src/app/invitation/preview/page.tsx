@@ -35,14 +35,26 @@ function InvitationPreviewContent() {
   }, [templateSlug]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("varnam_active_custom_data");
-      if (stored) {
-        setLocalCustomData(JSON.parse(stored));
+    function syncLocalData() {
+      try {
+        const stored = localStorage.getItem("varnam_active_custom_data");
+        if (stored) {
+          setLocalCustomData(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error("Failed to load local custom data for preview:", e);
       }
-    } catch (e) {
-      console.error("Failed to load local custom data for preview:", e);
     }
+
+    syncLocalData();
+
+    window.addEventListener("storage", syncLocalData);
+    const interval = setInterval(syncLocalData, 1000);
+
+    return () => {
+      window.removeEventListener("storage", syncLocalData);
+      clearInterval(interval);
+    };
   }, []);
 
   const defaultData = liveDefaultData;
@@ -82,6 +94,7 @@ function InvitationPreviewContent() {
     storyText: searchParams.get("storyText") || activeCustom.storyText || defaultData.storyText,
     whatsappNumber: searchParams.get("whatsappNumber") || activeCustom.whatsappNumber || defaultData.whatsappNumber,
     audioSrc: searchParams.get("audioSrc") || activeCustom.audioSrc || defaultData.audioSrc,
+    aiPreviewUrl: activeCustom.aiPreviewUrl || defaultData.aiPreviewUrl,
     events: parsedEvents || (activeCustom.events && activeCustom.events.length > 0 ? activeCustom.events : defaultData.events),
   };
 

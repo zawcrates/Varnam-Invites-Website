@@ -288,7 +288,7 @@ function App({ inviteData = {} }) {
           </div>
 
           <div className="image-overlay-container">
-            <img src="/end.png" alt="End" className="canvas-image" />
+            <img src={data.aiPreviewUrl || "/end.png"} alt="End" className="canvas-image" />
           </div>
 
           <div className="image-overlay-container">

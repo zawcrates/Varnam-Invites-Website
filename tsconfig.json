@@ -29,12 +29,6 @@
     "src/templates/Kovil_Vaibhavam/node_modules",
     "src/templates/Kovil_Vaibhavam/dist",
     "src/templates/Kovil_Vaibhavam/src",
-    "src/templates/Kovil_Vaibhavam/public",
-    "src/templates/Golden_Coast/node_modules",
-    "src/templates/Golden_Coast/.next",
-    "src/templates/Golden_Coast/app",
-    "src/templates/Golden_Coast/animations",
-    "src/templates/Golden_Coast/hooks",
-    "src/templates/Golden_Coast/public"
+    "src/templates/Kovil_Vaibhavam/public"
   ]
 }

@@ -25,6 +25,9 @@ export interface InviteData {
   storyText: string;
   whatsappNumber: string;
   audioSrc: string;
+  aiPreviewUrl?: string;
+  bridePhotoUrl?: string;
+  groomPhotoUrl?: string;
   events?: EventItem[];
 }
 
@@ -96,48 +99,6 @@ export const TEMPLATES: Template[] = [
           location: "THE GRAND BALLROOM",
         },
       ],
-    },
-  },
-  {
-    id: "golden-coast",
-    slug: "golden-coast",
-    name: "Golden Coast",
-    price: 1999,
-    originalPrice: 2999,
-    rating: 5.0,
-    reviewsCount: 0,
-    category: "Modern",
-    description:
-      "A cinematic coastal wedding invitation featuring a parallax sunset scene, smooth scrolling, and a dramatic stage reveal.",
-    thumbnail: "/golden-coast/thumbnail.jpeg",
-    features: [
-      "Cinematic parallax sunset background",
-      "Smooth Lenis scroll",
-      "GSAP ScrollTrigger animations",
-      "Layered stage overlay effect",
-      "Fully responsive across all screen sizes",
-    ],
-    defaultData: {
-      showPreloader: false,
-      preloaderTime: 0,
-      groomName: "Arjun",
-      connector: "Weds",
-      brideName: "Priya",
-      welcomeTop: "TOGETHER WITH THEIR FAMILIES",
-      andText: "AND",
-      inviteText1: "cordially invite you to celebrate",
-      inviteText2: "their joyous wedding festivities",
-      month: "DECEMBER",
-      dateDetails: "SATURDAY | 20 | 2025",
-      time: "6:00 PM ONWARDS",
-      locationLine1: "THE GOLDEN SHORE RESORT",
-      locationLine2: "MARINA BEACH ROAD, CHENNAI",
-      mapEmbedUrl:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.001696423075!2d77.5945627!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e8517e4fe0!2sBengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
-      storyText: "",
-      whatsappNumber: "1234567890",
-      audioSrc: "",
-      events: [],
     },
   },
 ];

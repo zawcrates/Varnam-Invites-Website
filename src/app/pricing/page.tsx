@@ -29,67 +29,40 @@ export default function PricingPage() {
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-          {/* Card 1: Vintage Scroll */}
-          <div className="bg-white border border-gold-medium/15 rounded-2xl p-8 flex flex-col justify-between luxury-shadow relative overflow-hidden">
+        <div className="max-w-xl mx-auto">
+          {/* Card 1: Kovil Vaibhavam */}
+          <div className="bg-white border border-gold-medium/15 rounded-2xl p-8 flex flex-col justify-between luxury-shadow relative overflow-hidden text-left">
             <div>
               <div className="absolute top-0 right-0 bg-gold-dark text-white text-[9px] uppercase tracking-widest px-3 py-1 font-bold rounded-bl-xl">
-                Vintage
+                Traditional
               </div>
-              <h3 className="font-sansflex text-xl text-luxury-dark font-bold mb-2">Vintage Parchment Scroll</h3>
+              <h3 className="font-sansflex text-2xl text-luxury-dark font-bold mb-2">Kovil Vaibhavam</h3>
               <p className="text-xs text-foreground/60 mb-6 leading-relaxed">
-                Classic torn parchment styling, mountain/parallax backgrounds, and traditional script aesthetics.
+                A regal South-Indian temple-inspired wedding invitation with parallax scrolling, parchment canvases, events carousel, map embed, background music and WhatsApp RSVP.
               </p>
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-3xl font-bold text-luxury-dark">₹999</span>
-                <span className="text-xs text-foreground/45 line-through">₹1,999</span>
-                <span className="text-xs text-emerald-600 font-semibold">(50% Off)</span>
+                <span className="text-3xl font-bold text-luxury-dark">₹1,999</span>
+                <span className="text-xs text-foreground/45 line-through">₹2,999</span>
+                <span className="text-xs text-emerald-600 font-semibold">(33% Off)</span>
               </div>
               <ul className="space-y-3.5 text-xs text-foreground/75 mb-8">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Real-time Parallax Scrolling</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> One-click WhatsApp RSVP</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Immersive Audio Support (MP3)</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Google Maps Integration</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Real-time Parallax Scrolling &amp; Audio</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Infinite Events Carousel &amp; Maps Embed</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Personal WhatsApp Order Review</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Lifetime Server Hosting Included</li>
               </ul>
             </div>
-            <Link href="/templates" className="w-full inline-flex justify-center text-xs uppercase tracking-widest font-bold bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white py-3.5 rounded-full transition-all text-center">
-              Choose Template
-            </Link>
-          </div>
-
-          {/* Card 2: Royal Heritage */}
-          <div className="bg-white border border-gold-medium/15 rounded-2xl p-8 flex flex-col justify-between luxury-shadow relative overflow-hidden">
-            <div>
-              <div className="absolute top-0 right-0 bg-luxury-dark text-white text-[9px] uppercase tracking-widest px-3 py-1 font-bold rounded-bl-xl">
-                Heritage
-              </div>
-              <h3 className="font-sansflex text-xl text-luxury-dark font-bold mb-2">Royal Heritage</h3>
-              <p className="text-xs text-foreground/60 mb-6 leading-relaxed">
-                Majestic palace illustration, golden flourishes, and deep royal theme colors.
-              </p>
-              <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-3xl font-bold text-luxury-dark">₹1,299</span>
-                <span className="text-xs text-foreground/45 line-through">₹2,499</span>
-                <span className="text-xs text-emerald-600 font-semibold">(48% Off)</span>
-              </div>
-              <ul className="space-y-3.5 text-xs text-foreground/75 mb-8">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Elegant Gold Leaf Accents</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Responsive Mobile Layouts</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Custom Event Timeline Planner</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gold-dark shrink-0" /> Lifetime Hosting Included</li>
-              </ul>
-            </div>
-            <Link href="/templates" className="w-full inline-flex justify-center text-xs uppercase tracking-widest font-bold bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white py-3.5 rounded-full transition-all text-center">
-              Choose Template
+            <Link href="/templates" className="w-full inline-flex justify-center text-xs uppercase tracking-widest font-bold bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white py-4 rounded-full transition-all text-center">
+              Customize Template
             </Link>
           </div>
         </div>
 
         {/* Info box */}
-        <div className="max-w-3xl mx-auto mt-12 bg-gold-light/20 border border-gold-medium/10 rounded-2xl p-5 flex gap-3.5 items-start">
+        <div className="max-w-xl mx-auto mt-12 bg-gold-light/20 border border-gold-medium/10 rounded-2xl p-5 flex gap-3.5 items-start text-left">
           <Info className="w-5 h-5 text-gold-dark shrink-0 mt-0.5" />
           <p className="text-xs text-foreground/70 leading-relaxed">
-            All plans include lifetime hosting from publication date. No hidden fees or recurring subscriptions. If you need details changed after checkout, our support team can assist with manual updates.
+            All plans include lifetime hosting from publication date. No hidden fees or recurring subscriptions. Our team personally reviews and confirms your customization on WhatsApp before delivering your live invitation link.
           </p>
         </div>
       </main>

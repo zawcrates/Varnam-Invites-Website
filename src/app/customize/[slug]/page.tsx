@@ -3,17 +3,19 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter, notFound } from 'next/navigation';
-import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, MessageSquare, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2, Calendar } from 'lucide-react';
+import { ArrowLeft, Monitor, Smartphone, CreditCard, MapPin, Heart, Plus, Trash2, Cloud, CloudOff, Loader2, CheckCircle2, Calendar, MessageCircle, Crown } from 'lucide-react';
 import { TEMPLATES } from '@/data/templates';
 import { TemplateService } from '@/services/TemplateService';
 import { useProject } from '@/hooks/useProject';
 import type { SaveStatus, ConnectionStatus, Template } from '@/types';
+import WhatsAppOrderModal from '@/components/WhatsAppOrderModal';
+import PremiumCoupleSection from '@/components/PremiumCoupleSection';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-type TabType = 'couple' | 'event' | 'rsvp-story';
+type TabType = 'couple' | 'event' | 'rsvp-story' | 'premium-artwork';
 
 // ---------------------------------------------------------------------------
 // Sync Status Badge
@@ -69,6 +71,11 @@ export default function CustomizePage({ params }: PageProps) {
   const router = useRouter();
   const { slug } = use(params);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+
+  const isLaunchMode =
+    process.env.NEXT_PUBLIC_LAUNCH_MODE === undefined ||
+    process.env.NEXT_PUBLIC_LAUNCH_MODE.toLowerCase() === "true";
 
   // Find template
   const initialTemplate = TEMPLATES.find((t) => t.slug === slug);
@@ -146,7 +153,6 @@ export default function CustomizePage({ params }: PageProps) {
   };
 
   const handleProcedToCheckout = () => {
-    setIsNavigating(true);
     // Mirror final state into the checkout localStorage keys
     localStorage.setItem(`varnam_active_slug`, slug);
     localStorage.setItem(`varnam_active_custom_data`, JSON.stringify(formData));
@@ -154,7 +160,13 @@ export default function CustomizePage({ params }: PageProps) {
     if (project?.id) {
       localStorage.setItem(`varnam_active_project_id`, project.id);
     }
-    router.push('/checkout');
+
+    if (isLaunchMode) {
+      setShowWhatsAppModal(true);
+    } else {
+      setIsNavigating(true);
+      router.push('/checkout');
+    }
   };
 
   // Construct search params string for live iframe updates
@@ -164,7 +176,13 @@ export default function CustomizePage({ params }: PageProps) {
     query.set('showPreloader', 'false'); // Disable preloader during live editing for speed!
     
     Object.entries(formData).forEach(([key, value]) => {
-      if (key !== 'showPreloader' && value !== undefined) {
+      if (
+        key !== 'showPreloader' &&
+        key !== 'aiPreviewUrl' &&
+        key !== 'bridePhotoUrl' &&
+        key !== 'groomPhotoUrl' &&
+        value !== undefined
+      ) {
         if (key === 'events') {
           query.set(key, JSON.stringify(value));
         } else {
@@ -181,6 +199,21 @@ export default function CustomizePage({ params }: PageProps) {
   return (
     <div className="flex flex-col h-screen bg-[#f7f5f0] text-luxury-dark select-none">
       
+      {showWhatsAppModal && (
+        <WhatsAppOrderModal
+          isOpen={showWhatsAppModal}
+          onClose={() => setShowWhatsAppModal(false)}
+          templateName={currentTemplate.name}
+          groomName={formData.groomName}
+          brideName={formData.brideName}
+          month={formData.month}
+          dateDetails={formData.dateDetails}
+          venueLine1={formData.locationLine1}
+          venueLine2={formData.locationLine2}
+          previewUrl={previewUrl}
+        />
+      )}
+
       {/* Top Header */}
       <header className="h-20 bg-white border-b border-gold-medium/15 px-6 md:px-12 flex justify-between items-center z-10 shrink-0">
         <div className="flex items-center gap-4">
@@ -204,15 +237,25 @@ export default function CustomizePage({ params }: PageProps) {
         {/* Sync Status Badge */}
         <SyncStatusBadge saveStatus={saveStatus} connectionStatus={connectionStatus} />
 
-        {/* Proceed to checkout CTA */}
+        {/* Order CTA */}
         <button
           onClick={handleProcedToCheckout}
           disabled={isNavigating}
-          className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md disabled:opacity-50 shrink-0"
+          className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md disabled:opacity-50 shrink-0 cursor-pointer"
         >
-          <CreditCard className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{isNavigating ? 'Proceeding...' : 'Proceed to Checkout'}</span>
-          <span className="inline sm:hidden">{isNavigating ? '...' : 'Checkout'}</span>
+          {isLaunchMode ? (
+            <>
+              <MessageCircle className="w-4 h-4 text-[#25D366]" />
+              <span className="hidden sm:inline">Order via WhatsApp</span>
+              <span className="inline sm:hidden">Order</span>
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{isNavigating ? 'Proceeding...' : 'Proceed to Checkout'}</span>
+              <span className="inline sm:hidden">{isNavigating ? '...' : 'Checkout'}</span>
+            </>
+          )}
         </button>
       </header>
 
@@ -228,7 +271,8 @@ export default function CustomizePage({ params }: PageProps) {
             {[
               { id: 'couple', label: 'Names', icon: Heart },
               { id: 'event', label: 'Ceremony', icon: MapPin },
-              { id: 'rsvp-story', label: 'Add Events', icon: Calendar }
+              { id: 'rsvp-story', label: 'Events', icon: Calendar },
+              { id: 'premium-artwork', label: '✨ Artwork', icon: Crown },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -236,7 +280,7 @@ export default function CustomizePage({ params }: PageProps) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-4 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer ${
                     isActive 
                       ? 'border-gold-dark text-gold-dark bg-gold-light/10 font-bold' 
                       : 'border-transparent text-foreground/45 hover:text-foreground/75'
@@ -499,6 +543,15 @@ export default function CustomizePage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* TAB 4: Premium Couple Artwork */}
+            {activeTab === 'premium-artwork' && (
+              <PremiumCoupleSection
+                templateSlug={slug}
+                templateName={template?.name}
+                formData={formData}
+              />
             )}
 
             {/* Spacing element at the bottom to prevent layout overlap with floating mobile switcher */}

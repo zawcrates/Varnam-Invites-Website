@@ -53,6 +53,7 @@ export type {
   // Project domain
   Project,
   ProjectStatus,
+  PremiumArtworkStatus,
   SaveStatus,
   ConnectionStatus,
   CreateProjectPayload,

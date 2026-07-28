@@ -80,6 +80,12 @@ export interface InviteData {
   whatsappNumber: string;
   /** Path or URL to the background audio file. */
   audioSrc: string;
+  /** Optional generated AI couple preview artwork URL. */
+  aiPreviewUrl?: string;
+  /** Optional uploaded bride photo URL. */
+  bridePhotoUrl?: string;
+  /** Optional uploaded groom photo URL. */
+  groomPhotoUrl?: string;
   /** Optional list of wedding events. Rendered as a scrollable event card carousel. */
   events?: EventItem[];
 }
@@ -128,6 +134,8 @@ export interface TemplateManifest {
   description?: string;
   /** Path or URL to template thumbnail preview */
   thumbnail?: string;
+  /** Path or URL to base template ending artwork containing couple to be replaced by AI */
+  endingArtwork?: string;
   /** Default bullet-point feature list */
   features?: string[];
   /** Optional default invitation form preset values */

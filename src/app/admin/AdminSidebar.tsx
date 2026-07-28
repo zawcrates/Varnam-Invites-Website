@@ -10,6 +10,7 @@ export default function AdminSidebar() {
 
   const navItems = [
     { label: "Templates CMS", href: "/admin/templates", icon: LayoutGrid },
+    { label: "Premium Requests", href: "/admin/premium-requests", icon: Sparkles },
     { label: "Orders & Sales", href: "/admin/orders", icon: Package },
     { label: "Settings", href: "/admin/settings", icon: Settings },
   ];

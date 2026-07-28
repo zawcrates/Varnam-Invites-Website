@@ -86,7 +86,7 @@ export class EmailService {
         });
 
         if (response.ok) {
-          console.log(`[EmailService] Live invitation email sent successfully to ${toEmail}`);
+          console.log(`[EmailService] Live invitation email sent successfully.`);
           return true;
         } else {
           const errData = await response.json();
@@ -97,12 +97,10 @@ export class EmailService {
       }
     }
 
-    // Fallback log output for development or missing API key
-    console.log("------------------------------------------------------------");
-    console.log(`[EmailService] LIVE INVITATION EMAIL TO: ${toEmail}`);
-    console.log(`[EmailService] SUBJECT: ${subject}`);
-    console.log(`[EmailService] LINK: ${invitationUrl}`);
-    console.log("------------------------------------------------------------");
+    // Fallback log output for development or missing API key (sanitized)
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[EmailService] Live invitation email dispatched for order ${orderId || 'N/A'}`);
+    }
 
     return true;
   }
