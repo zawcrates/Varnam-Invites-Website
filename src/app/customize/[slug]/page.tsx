@@ -73,9 +73,7 @@ export default function CustomizePage({ params }: PageProps) {
   const [isNavigating, setIsNavigating] = useState(false);
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
 
-  const isLaunchMode =
-    process.env.NEXT_PUBLIC_LAUNCH_MODE === undefined ||
-    process.env.NEXT_PUBLIC_LAUNCH_MODE.toLowerCase() === "true";
+  const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE?.toLowerCase() === "true";
 
   // Find template
   const initialTemplate = TEMPLATES.find((t) => t.slug === slug);
