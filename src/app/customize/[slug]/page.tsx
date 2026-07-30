@@ -560,72 +560,84 @@ export default function CustomizePage({ params }: PageProps) {
         </aside>
 
         {/* Right Side: Iframe Live Preview Panel */}
-        <main className={`flex-grow bg-gradient-to-br from-[#f2efe9] to-[#eae5db] flex flex-col lg:h-full overflow-hidden p-6 ${
+        <main className={`flex-grow bg-gradient-to-br from-[#f2efe9] to-[#eae5db] flex flex-col lg:h-full overflow-hidden p-2 sm:p-4 lg:p-6 pb-20 lg:pb-6 ${
           mobileView === 'preview' ? 'flex-grow h-full' : 'hidden lg:flex'
         }`}>
-          {/* Preview Viewport Switcher */}
-          <div className="flex justify-between items-center mb-4 shrink-0">
-            <span className="text-xs uppercase tracking-wider font-semibold text-foreground/50 font-sansflex">
-              Real-time Live Preview
-            </span>
-            <div className="flex items-center gap-1.5 bg-white border border-gold-medium/15 p-1 rounded-full shadow-sm">
-              <button
-                onClick={() => setPreviewMode('mobile')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-semibold transition-all ${
-                  previewMode === 'mobile'
-                    ? 'bg-luxury-dark text-gold-light'
-                    : 'text-foreground/50 hover:text-gold-dark'
-                }`}
-              >
-                <Smartphone className="w-3 h-3" />
-                <span>Mobile</span>
-              </button>
-              <button
-                onClick={() => setPreviewMode('desktop')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-semibold transition-all ${
-                  previewMode === 'desktop'
-                    ? 'bg-luxury-dark text-gold-light'
-                    : 'text-foreground/50 hover:text-gold-dark'
-                }`}
-              >
-                <Monitor className="w-3 h-3" />
-                <span>Desktop</span>
-              </button>
-            </div>
+          {/* On Mobile Screens (lg:hidden): Full-Width & Full-Height Max Screen Space Canvas (No Mockup) */}
+          <div className="lg:hidden w-full h-full rounded-xl overflow-hidden bg-white shadow-lg border border-gold-medium/15 relative">
+            <iframe
+              src={previewUrl}
+              className="w-full h-full border-0"
+              title="Live Mobile Customization Preview"
+            />
           </div>
 
-          {/* Iframe Viewport */}
-          <div className="flex-grow flex items-center justify-center overflow-hidden">
-            {previewMode === 'mobile' ? (
-              <div className="relative w-[300px] sm:w-[330px] aspect-[9/15.3] bg-luxury-dark rounded-[40px] p-2.5 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/25 scale-[0.9] sm:scale-100 origin-center">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-luxury-dark rounded-b-2xl z-30 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-neutral-900 border border-neutral-800 ml-2" />
-                  <div className="w-10 h-0.5 bg-neutral-800 rounded-full ml-3" />
-                </div>
-                <div className="w-full h-full rounded-[30px] overflow-hidden bg-white relative z-20">
-                  <iframe
-                    src={previewUrl}
-                    className="w-full h-full border-0"
-                    title="Live Mobile Customization Preview"
-                  />
-                </div>
+          {/* On Desktop Screens (lg:flex): Preview Viewport Switcher & Interactive Mockup Frames */}
+          <div className="hidden lg:flex flex-col w-full h-full overflow-hidden">
+            {/* Preview Viewport Switcher */}
+            <div className="flex justify-between items-center mb-4 shrink-0">
+              <span className="text-xs uppercase tracking-wider font-semibold text-foreground/50 font-sansflex">
+                Real-time Live Preview
+              </span>
+              <div className="flex items-center gap-1.5 bg-white border border-gold-medium/15 p-1 rounded-full shadow-sm">
+                <button
+                  onClick={() => setPreviewMode('mobile')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-semibold transition-all ${
+                    previewMode === 'mobile'
+                      ? 'bg-luxury-dark text-gold-light'
+                      : 'text-foreground/50 hover:text-gold-dark'
+                  }`}
+                >
+                  <Smartphone className="w-3 h-3" />
+                  <span>Mobile</span>
+                </button>
+                <button
+                  onClick={() => setPreviewMode('desktop')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-semibold transition-all ${
+                    previewMode === 'desktop'
+                      ? 'bg-luxury-dark text-gold-light'
+                      : 'text-foreground/50 hover:text-gold-dark'
+                  }`}
+                >
+                  <Monitor className="w-3 h-3" />
+                  <span>Desktop</span>
+                </button>
               </div>
-            ) : (
-              <div className="w-full h-full rounded-2xl overflow-hidden bg-white shadow-2xl border border-gold-medium/10 flex flex-col max-w-5xl">
-                <div className="h-6 bg-neutral-100 border-b border-neutral-200 px-4 flex items-center gap-1.5 shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-neutral-300" />
-                  <div className="w-2 h-2 rounded-full bg-neutral-300" />
-                  <div className="w-2 h-2 rounded-full bg-neutral-300" />
+            </div>
+
+            {/* Iframe Viewport */}
+            <div className="flex-grow flex items-center justify-center overflow-hidden">
+              {previewMode === 'mobile' ? (
+                <div className="relative w-[300px] sm:w-[330px] aspect-[9/15.3] bg-luxury-dark rounded-[40px] p-2.5 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/25 origin-center">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-luxury-dark rounded-b-2xl z-30 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-neutral-900 border border-neutral-800 ml-2" />
+                    <div className="w-10 h-0.5 bg-neutral-800 rounded-full ml-3" />
+                  </div>
+                  <div className="w-full h-full rounded-[30px] overflow-hidden bg-white relative z-20">
+                    <iframe
+                      src={previewUrl}
+                      className="w-full h-full border-0"
+                      title="Live Mobile Customization Preview"
+                    />
+                  </div>
                 </div>
-                <div className="flex-grow bg-white">
-                  <iframe
-                    src={previewUrl}
-                    className="w-full h-full border-0"
-                    title="Live Desktop Customization Preview"
-                  />
+              ) : (
+                <div className="w-full h-full rounded-2xl overflow-hidden bg-white shadow-2xl border border-gold-medium/10 flex flex-col max-w-5xl">
+                  <div className="h-6 bg-neutral-100 border-b border-neutral-200 px-4 flex items-center gap-1.5 shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-neutral-300" />
+                    <div className="w-2 h-2 rounded-full bg-neutral-300" />
+                    <div className="w-2 h-2 rounded-full bg-neutral-300" />
+                  </div>
+                  <div className="flex-grow bg-white">
+                    <iframe
+                      src={previewUrl}
+                      className="w-full h-full border-0"
+                      title="Live Desktop Customization Preview"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </main>
 
