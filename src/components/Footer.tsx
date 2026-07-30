@@ -7,7 +7,7 @@ export default function Footer() {
 
   return (
     <footer id="contact" className="bg-luxury-dark text-gold-light/80 border-t border-gold-medium/10 pt-16 pb-12">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         
         {/* Brand */}
         <div className="md:col-span-2 flex flex-col items-start gap-3">
@@ -23,55 +23,6 @@ export default function Footer() {
           <p className="font-sansflex text-xs text-gold-light/50 tracking-wide max-w-sm leading-relaxed">
             Varnam Invites is India&apos;s premier digital wedding invitation &amp; wedding website maker. Personalize invitations with music, Google Maps venue location, RSVP tracking, and instant mobile sharing.
           </p>
-        </div>
-
-        {/* Popular Categories */}
-        <div>
-          <h4 className="font-sansflex text-xs uppercase tracking-widest text-white font-bold mb-6">
-            Invitation Styles
-          </h4>
-          <ul className="flex flex-col gap-3 text-xs text-gold-light/60">
-            <li>
-              <Link href="/invitations/digital-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Digital Wedding Invitations
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/wedding-invitation-maker" className="hover:text-gold-medium transition-colors">
-                Wedding Invitation Maker
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/hindu-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Hindu Wedding Cards
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/tamil-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Tamil Wedding Invites
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/telugu-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Telugu Wedding Invites
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/muslim-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Muslim Nikah Invitations
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/christian-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Christian Wedding Cards
-              </Link>
-            </li>
-            <li>
-              <Link href="/invitations/luxury-wedding-invitations" className="hover:text-gold-medium transition-colors">
-                Luxury Wedding Websites
-              </Link>
-            </li>
-          </ul>
         </div>
 
         {/* Quick Links */}
