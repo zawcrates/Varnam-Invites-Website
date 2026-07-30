@@ -153,7 +153,7 @@ export default function Navbar() {
           <Link href="/" onClick={handleLogoClick} className="flex items-center justify-center group z-40 max-w-[45%] sm:max-w-none overflow-hidden h-12 sm:h-auto sm:overflow-visible">
             <Image 
               src="/Varnam_svg3.png" 
-              alt="Varnam Invites Logo" 
+              alt="Varnam Invites Logo - Premium Digital Wedding Invitations & Website Maker" 
               width={260}
               height={120}
               priority

@@ -197,7 +197,7 @@ export default function CustomizePage({ params }: PageProps) {
   const previewUrl = getPreviewUrl();
 
   return (
-    <div className="flex flex-col h-screen bg-[#f7f5f0] text-luxury-dark select-none">
+    <div className="flex flex-col h-screen bg-[#f7f5f0] text-luxury-dark">
       
       {showWhatsAppModal && (
         <WhatsAppOrderModal

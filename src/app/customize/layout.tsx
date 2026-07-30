@@ -1,13 +1,13 @@
 import { constructMetadata } from "@/lib/seo.config";
 
 export const metadata = constructMetadata({
-  title: "Admin Panel",
-  description: "Varnam Invites Management Portal.",
-  path: "/admin",
+  title: "Live Invitation Customizer",
+  description: "Personalize your wedding invitation details live.",
+  path: "/customize",
   noIndex: true,
 });
 
-export default function AdminLayout({
+export default function CustomizeLayout({
   children,
 }: {
   children: React.ReactNode;

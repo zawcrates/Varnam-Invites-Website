@@ -1,13 +1,14 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { buildPageMetadata } from '@/features/seo/metadata';
+import { constructMetadata } from '@/lib/seo.config';
 import { Sparkles, Heart, ShieldCheck } from 'lucide-react';
 
-export const metadata = buildPageMetadata({
-  title: 'Our Story & Philosophy',
-  description: 'Learn about Varnam Invites, our luxury design philosophy, and how we transform traditional wedding invitations into exquisite digital realities.',
+export const metadata = constructMetadata({
+  title: 'About Us | Premium Digital Wedding Invitation Maker',
+  description: 'Learn about Varnam Invites, our luxury design philosophy, and how we transform traditional Indian wedding invitations into exquisite digital realities.',
   path: '/about',
+  keywords: ['about varnam invites', 'digital wedding invitation company', 'indian wedding card design team'],
 });
 
 export default function AboutPage() {

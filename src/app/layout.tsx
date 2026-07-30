@@ -2,40 +2,15 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { constructMetadata } from "@/lib/seo.config";
+import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/JsonLd";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://varnaminvites.com";
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Varnam Invites | Premium Digital Wedding Invitations",
-    template: "%s | Varnam Invites",
-  },
-  description: "Browse professionally designed digital wedding invitation templates, preview, personalize, and share your special day with elegance.",
-  keywords: ["wedding invitation", "digital card", "wedding website", "online invitation", "indian wedding", "customizable wedding card"],
-  alternates: {
-    canonical: "./",
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_IN",
-    url: SITE_URL,
-    siteName: "Varnam Invites",
-  },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-32x32.png",
-    apple: "/apple-touch-icon.png",
-  },
-  verification: {
-    google: "B2oTvHdI3F2h24o57wlRIK-8lfPJtFeelNZsnExMrAg",
-  },
-};
+export const metadata: Metadata = constructMetadata();
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5, // Allow zoom for accessibility contrast check
+  maximumScale: 5,
   userScalable: true,
 };
 
@@ -63,6 +38,9 @@ export default function RootLayout({
         <link rel="preload" href="/Fondamento-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="preload" href="/Afacad-VariableFont_wght.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="preload" href="/white-space.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
       </head>
       <body className="font-sansflex antialiased bg-background text-foreground">
         <AuthProvider>

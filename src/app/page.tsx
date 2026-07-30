@@ -12,6 +12,8 @@ import { TEMPLATES } from '@/data/templates';
 import { TemplateService } from '@/services/TemplateService';
 import type { Template } from '@/types';
 
+import { FAQJsonLd } from '@/components/JsonLd';
+
 export default function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -121,6 +123,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <FAQJsonLd faqs={faqs} />
       <Navbar />
 
       {/* Hero Section */}

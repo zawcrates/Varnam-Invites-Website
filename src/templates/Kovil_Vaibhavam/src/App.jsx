@@ -92,6 +92,7 @@ function App({ inviteData = {} }) {
   };
 
   useEffect(() => {
+    let timer;
     const ctx = gsap.context(() => {
       gsap.to(bgRef.current, {
         yPercent: 35,
@@ -104,13 +105,28 @@ function App({ inviteData = {} }) {
           invalidateOnRefresh: true
         },
       });
+
+      // Refresh ScrollTrigger after DOM images load
+      timer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 500);
     });
 
-    return () => ctx.revert();
+    const handleImgLoad = () => {
+      ScrollTrigger.refresh();
+    };
+
+    window.addEventListener('load', handleImgLoad);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('load', handleImgLoad);
+      ctx.revert();
+    };
   }, []);
 
   return (
-    <ReactLenis root options={{ lerp: 0.08, smoothWheel: true }}>
+    <>
       <div className="app-container">
         
         {/* We moved bgRef to the wrapper so the text also parallaxes with the sky! */}
@@ -299,7 +315,7 @@ function App({ inviteData = {} }) {
 
       </div>
       <Loader audioSrc={data.audioSrc} />
-    </ReactLenis>
+    </>
   );
 }
 

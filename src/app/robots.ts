@@ -10,10 +10,12 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         '/dashboard',
         '/my-invites',
-        '/my-invitations',
         '/checkout',
+        '/customize/',
         '/success',
         '/admin',
+        '/auth/',
+        '/api/',
       ],
     },
     sitemap: `${baseUrl}/sitemap.xml`,

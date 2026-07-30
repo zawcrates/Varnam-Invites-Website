@@ -1,14 +1,15 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { buildPageMetadata } from '@/features/seo/metadata';
+import { constructMetadata } from '@/lib/seo.config';
 import { Check, Info } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = buildPageMetadata({
-  title: 'Transparent Pricing Details',
-  description: 'Choose a premium template, pay a flat one-time licensing fee, and get lifetime hosting for your custom website.',
+export const metadata = constructMetadata({
+  title: 'Pricing & Lifetime License',
+  description: 'Simple, transparent flat pricing for digital wedding invitations. Pay once, customize live, and enjoy lifetime website hosting with zero recurring fees.',
   path: '/pricing',
+  keywords: ['wedding invitation pricing', 'digital marriage card cost', 'wedding website price india'],
 });
 
 export default function PricingPage() {

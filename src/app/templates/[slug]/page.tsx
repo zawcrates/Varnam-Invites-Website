@@ -1,182 +1,67 @@
-"use client";
-
-import React, { useState, useEffect, use } from 'react';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, Monitor, Smartphone, ExternalLink, Sliders } from 'lucide-react';
-import { TEMPLATES } from '@/data/templates';
-import { TemplateService } from '@/services/TemplateService';
-import type { Template } from '@/types';
+import React from "react";
+import { notFound } from "next/navigation";
+import { TEMPLATES } from "@/data/templates";
+import { constructMetadata } from "@/lib/seo.config";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
+import TemplateDetailsClient from "./TemplateDetailsClient";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default function TemplateDetailsPage({ params }: PageProps) {
-  const { slug } = use(params);
-  const initial = TEMPLATES.find(t => t.slug === slug);
-  const [template, setTemplate] = useState<Template | null>(initial || null);
+export async function generateStaticParams() {
+  return TEMPLATES.map((t) => ({
+    slug: t.slug,
+  }));
+}
 
-  useEffect(() => {
-    async function loadTemplate() {
-      try {
-        const live = await TemplateService.getBySlug(slug);
-        if (live) {
-          setTemplate(live);
-        }
-      } catch (e) {
-        console.error("Failed to load live template details:", e);
-      }
-    }
-    loadTemplate();
-  }, [slug]);
-  
-  if (!template && !initial) {
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const template = TEMPLATES.find((t) => t.slug === slug);
+
+  if (!template) {
+    return constructMetadata({ title: "Template Not Found", noIndex: true });
+  }
+
+  return constructMetadata({
+    title: `${template.name} - Digital Wedding Invitation Template`,
+    description: `Preview and customize ${template.name}, a ${template.category.toLowerCase()} digital wedding invitation template. Includes background music, Google Maps directions, RSVP, and instant mobile sharing.`,
+    path: `/templates/${template.slug}`,
+    image: template.thumbnail,
+    keywords: [
+      template.name,
+      `${template.category} wedding invitation`,
+      "digital wedding card template",
+      "customizable wedding website",
+    ],
+  });
+}
+
+export default async function TemplateDetailsPage({ params }: PageProps) {
+  const { slug } = await params;
+  const template = TEMPLATES.find((t) => t.slug === slug);
+
+  if (!template) {
     notFound();
   }
-  
-  const currentTemplate = template || initial!;
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('mobile');
 
-  // Preview URL for the iframe
-  const previewUrl = `/invitation/preview?template=${currentTemplate.slug}`;
+  const breadcrumbs = [
+    { name: "Home", url: "/" },
+    { name: "Templates", url: "/templates" },
+    { name: template.name, url: `/templates/${template.slug}` },
+  ];
 
   return (
-    <div className="flex flex-col h-screen bg-[#f7f5f0] text-luxury-dark select-none">
-      
-      {/* Top Navigation Bar */}
-      <header className="h-20 bg-white border-b border-gold-medium/15 px-6 md:px-12 flex justify-between items-center z-10 shrink-0">
-        
-        {/* Back and Title */}
-        <div className="flex items-center gap-4">
-          <Link 
-            href="/templates" 
-            className="p-2 border border-gold-medium/20 hover:border-gold-medium/55 rounded-full hover:bg-gold-light transition-all"
-            title="Back to collection"
-          >
-            <ArrowLeft className="w-4 h-4 text-foreground" />
-          </Link>
-          <div className="max-w-[120px] sm:max-w-none">
-            <h1 className="font-sansflex font-bold text-sm sm:text-lg tracking-wide truncate">
-              {currentTemplate.name}
-            </h1>
-            <p className="text-[9px] sm:text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
-              ₹{currentTemplate.price} &bull; {currentTemplate.category}
-            </p>
-          </div>
-        </div>
-
-        {/* Viewport Switcher */}
-        <div className="hidden sm:flex items-center gap-2 bg-gold-light/40 border border-gold-medium/15 p-1 rounded-full">
-          <button
-            onClick={() => setViewMode('mobile')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all ${
-              viewMode === 'mobile'
-                ? 'bg-luxury-dark text-gold-light shadow-md'
-                : 'text-foreground/50 hover:text-gold-dark'
-            }`}
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>Mobile view</span>
-          </button>
-          <button
-            onClick={() => setViewMode('desktop')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all ${
-              viewMode === 'desktop'
-                ? 'bg-luxury-dark text-gold-light shadow-md'
-                : 'text-foreground/50 hover:text-gold-dark'
-            }`}
-          >
-            <Monitor className="w-3.5 h-3.5" />
-            <span>Desktop view</span>
-          </button>
-        </div>
-
-        {/* Action CTAs */}
-        <div className="flex items-center gap-2">
-          {/* External Tab */}
-          <a
-            href={previewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-3 border border-gold-medium/20 hover:border-gold-medium/50 hover:bg-gold-light rounded-full text-foreground/80 hover:text-gold-dark transition-all shrink-0"
-            title="Open in new tab"
-          >
-            <ExternalLink className="w-4 h-4" />
-          </a>
-          
-          {/* Primary CTA */}
-          <Link
-            href={`/customize/${currentTemplate.slug}`}
-            className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-[10px] sm:text-xs uppercase tracking-widest font-semibold px-4.5 py-2.5 sm:px-5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md shrink-0"
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>Customize</span>
-          </Link>
-        </div>
-
-      </header>
-
-      {/* Main View Area */}
-      <main className="flex-grow flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#f2efe9] to-[#eae5db]">
-        {viewMode === 'mobile' ? (
-          /* Phone Frame mockup */
-          <div className="relative w-full max-w-[340px] sm:max-w-[370px] aspect-[8/14] bg-luxury-dark rounded-[48px] p-3 shadow-2xl border-4 border-luxury-dark/95 flex flex-col justify-stretch overflow-hidden ring-1 ring-gold-medium/20 animate-fade-in">
-            {/* Phone Notch/Speaker */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-luxury-dark rounded-b-2xl z-30 flex items-center justify-center">
-              {/* Camera Lens */}
-              <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 border border-neutral-800 ml-4" />
-              {/* Speaker Grill */}
-              <div className="w-12 h-1 bg-neutral-800 rounded-full ml-4" />
-            </div>
-
-            {/* Home indicator bar (bottom) */}
-            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-28 h-1 bg-neutral-800 rounded-full z-30 pointer-events-none" />
-
-            {/* Web View Inside Mobile Frame */}
-            <div className="w-full h-full rounded-[38px] overflow-hidden bg-white relative z-20">
-              <iframe
-                src={previewUrl}
-                className="w-full h-full border-0"
-                title={`${currentTemplate.name} Mobile Preview`}
-              />
-            </div>
-          </div>
-        ) : (
-          /* Full Desktop Iframe view */
-          <div className="w-full h-full rounded-2xl overflow-hidden bg-white shadow-xl border border-gold-medium/10 max-w-5xl mx-auto flex flex-col animate-fade-in">
-            {/* Desktop browser bar */}
-            <div className="h-8 bg-neutral-100/80 border-b border-neutral-200 px-4 flex items-center gap-2 shrink-0">
-              <div className="w-2.5 h-2.5 rounded-full bg-neutral-300" />
-              <div className="w-2.5 h-2.5 rounded-full bg-neutral-300" />
-              <div className="w-2.5 h-2.5 rounded-full bg-neutral-300" />
-              <div className="bg-neutral-200/50 text-[10px] text-foreground/40 font-sansflex tracking-wide px-4 py-0.5 rounded-md ml-4 w-64 truncate">
-                varnaminvites.com/preview/{currentTemplate.slug}
-              </div>
-            </div>
-            {/* Iframe */}
-            <div className="flex-grow bg-white">
-              <iframe
-                src={previewUrl}
-                className="w-full h-full border-0"
-                title={`${currentTemplate.name} Desktop Preview`}
-              />
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Sticky Mobile CTA */}
-      <div className="sm:hidden fixed bottom-6 left-0 right-0 px-6 z-30 flex justify-center pointer-events-none">
-        <Link
-          href={`/customize/${currentTemplate.slug}`}
-          className="pointer-events-auto flex items-center justify-center gap-2 w-full max-w-[280px] py-3.5 bg-luxury-dark border border-gold-medium/30 text-gold-light font-sansflex text-xs uppercase tracking-widest font-bold rounded-full shadow-[0_10px_30px_rgba(18,18,18,0.25)] active:scale-95 transition-all duration-300"
-        >
-          <Sliders className="w-4 h-4 text-gold-medium" />
-          Customize Template
-        </Link>
-      </div>
-
-    </div>
+    <>
+      <ProductJsonLd
+        name={template.name}
+        description={template.description}
+        image={template.thumbnail}
+        price={template.price}
+        slug={template.slug}
+      />
+      <BreadcrumbJsonLd items={breadcrumbs} />
+      <TemplateDetailsClient slug={slug} />
+    </>
   );
 }
