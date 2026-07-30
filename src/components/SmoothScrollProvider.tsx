@@ -32,11 +32,12 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     <ReactLenis 
       root 
       options={{ 
-        duration: 1.4, 
-        lerp: 0.07, 
+        duration: 0.9, 
+        lerp: 0.15, 
         smoothWheel: true,
-        wheelMultiplier: 1.0,
-        touchMultiplier: 1.2,
+        wheelMultiplier: 1.2,
+        touchMultiplier: 2.5,
+        syncTouch: true,
       }}
     >
       {children}

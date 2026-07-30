@@ -215,20 +215,22 @@ export default function CustomizePage({ params }: PageProps) {
       )}
 
       {/* Top Header */}
-      <header className="h-20 bg-white border-b border-gold-medium/15 px-6 md:px-12 flex justify-between items-center z-10 shrink-0">
-        <div className="flex items-center gap-4">
+      <header className="h-16 sm:h-20 bg-white border-b border-gold-medium/15 px-4 sm:px-6 md:px-12 flex justify-between items-center z-20 shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Link 
             href={`/templates/${slug}`}
-            className="p-2 border border-gold-medium/20 hover:border-gold-medium/55 rounded-full hover:bg-gold-light transition-all"
+            className="p-2 border border-gold-medium/20 hover:border-gold-medium/55 rounded-full hover:bg-gold-light transition-all shrink-0"
             title="Back to preview"
           >
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </Link>
-          <div>
-            <h1 className="font-sansflex font-bold text-sm sm:text-lg tracking-wide truncate max-w-[150px] sm:max-w-none">
+          
+          {/* Title - Hidden on mobile to keep header clean and spacious */}
+          <div className="hidden md:block">
+            <h1 className="font-sansflex font-bold text-base sm:text-lg tracking-wide">
               Customize {currentTemplate.name}
             </h1>
-            <p className="hidden sm:block text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
+            <p className="text-[10px] text-foreground/50 uppercase tracking-widest font-sansflex font-semibold">
               Live Editing Workspace
             </p>
           </div>
@@ -237,23 +239,21 @@ export default function CustomizePage({ params }: PageProps) {
         {/* Sync Status Badge */}
         <SyncStatusBadge saveStatus={saveStatus} connectionStatus={connectionStatus} />
 
-        {/* Order CTA */}
+        {/* Prominent & Fully Accessible Order CTA */}
         <button
           onClick={handleProcedToCheckout}
           disabled={isNavigating}
-          className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-widest font-semibold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md disabled:opacity-50 shrink-0 cursor-pointer"
+          className="inline-flex items-center gap-2 bg-luxury-dark hover:bg-gold-dark text-gold-light hover:text-white font-sansflex text-xs uppercase tracking-wider font-bold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 shadow-md disabled:opacity-50 shrink-0 cursor-pointer"
         >
           {isLaunchMode ? (
             <>
-              <MessageCircle className="w-4 h-4 text-[#25D366]" />
-              <span className="hidden sm:inline">Order via WhatsApp</span>
-              <span className="inline sm:hidden">Order</span>
+              <MessageCircle className="w-4 h-4 text-[#25D366] shrink-0" />
+              <span>Order via WhatsApp</span>
             </>
           ) : (
             <>
-              <CreditCard className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{isNavigating ? 'Proceeding...' : 'Proceed to Checkout'}</span>
-              <span className="inline sm:hidden">{isNavigating ? '...' : 'Checkout'}</span>
+              <CreditCard className="w-4 h-4 shrink-0" />
+              <span>{isNavigating ? 'Proceeding...' : 'Proceed to Checkout'}</span>
             </>
           )}
         </button>
