@@ -17,9 +17,7 @@ export default function CheckoutPage() {
   const [customData, setCustomData] = useState<InviteData | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
 
-  const isLaunchMode =
-    process.env.NEXT_PUBLIC_LAUNCH_MODE === undefined ||
-    process.env.NEXT_PUBLIC_LAUNCH_MODE.toLowerCase() === "true";
+  const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE?.toLowerCase() === "true";
 
   // Billing Form State
   const [billingEmail, setBillingEmail] = useState('');

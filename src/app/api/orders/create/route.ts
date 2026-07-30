@@ -50,9 +50,7 @@ function getRazorpayClient() {
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
-  const isLaunchMode =
-    process.env.NEXT_PUBLIC_LAUNCH_MODE === undefined ||
-    process.env.NEXT_PUBLIC_LAUNCH_MODE.toLowerCase() === "true";
+  const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE?.toLowerCase() === "true";
 
   if (isLaunchMode) {
     return NextResponse.json(
